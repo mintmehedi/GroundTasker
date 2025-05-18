@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600&display=swap');
+
+.auth-logo-wrapper {
+  position: fixed;
+  top: 25px;
+  left: 40px;
+  z-index: 1000;
+}
+
+.auth-logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #4b5563;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.auth-logo:hover {
+  color: #fbbf24;
+  letter-spacing: 1px;
+  transform: translateY(-1px);
+}

@@ -1,0 +1,122 @@
+/* Reset default link styles globally */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Style header links */
+.main-nav a {
+  padding: 8px 16px;
+  font-weight: 600;
+  color: #374151;
+  background-color: #fffbea;
+  border: 1px solid #facc15;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease-in-out;
+}
+
+.main-nav a:hover {
+  background-color: #fbbf24;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.main-nav a.primary-nav {
+  background-color: #ffde89;
+  color: #1f2937;
+  border: none;
+}
+.main-nav a.primary-nav:hover {
+  background-color: #f59e0b;
+  color: white;
+}
+
+/* Hover for Help/Notifications/Messages (just color) */
+.header-actions a:hover {
+  color: #fbbf24;
+}
+
+
+.main-header {
+      background-color: #f9f9f9;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .container.header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .logo {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #4b5563;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      margin-right: 20px;
+    }
+
+    .logo:hover {
+      color: #6e9c11;
+      letter-spacing: normal;
+      transform: none;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 16px;
+      margin-right: auto;
+    }
+
+    .main-nav a {
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .main-nav a:hover {
+      background-color: #fef3c7;
+      color: #d97706;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-actions a {
+      transition: all 0.3s ease;
+    }
+
+    .header-actions a:hover {
+      color: #fbbf24;
+    }
+
+    .profile-icon {
+      background-color: #f3f4f6;
+      padding: 8px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .main-footer {
+      text-align: center;
+      font-size: 13px;
+      padding: 24px;
+      background: linear-gradient(90deg, #75aa4a, #256427c6);
+      color: #fff;
+      margin-top: 60px;
+    }

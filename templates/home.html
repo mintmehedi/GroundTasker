@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}   {# ✅ This was missing! #}
+
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="hero-section">
+  <div class="container hero-inner">
+    <div class="hero-content">
+      <p class="greeting">Good afternoon, Mark</p>
+      <h1 class="headline">
+        <span>Get tasks done.</span><br />
+        <span class="light-text">Or earn doing what you love.</span>
+      </h1>
+
+      <form class="search-box" method="get" action="#">
+        <input type="text" placeholder="What do you need done?" name="query" />
+        <button type="submit">
+          Find doers
+          <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21.71 20.29l-3.4-3.39a9 9 0 10-1.41 1.41l3.4 3.4a1 1 0 001.41-1.42zM4 10a6 6 0 1112 0 6 6 0 01-12 0z"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="how-it-works">
+  <h2>How it works:</h2>
+  <div class="steps">
+    <span>Post your task</span>
+    <span class="arrow">→</span>
+    <span>Get offer</span>
+    <span class="arrow">→</span>
+    <span>Communicate</span>
+    <span class="arrow">→</span>
+    <span class="check">✅</span>
+  </div>
+</section>
+
+<section class="top-categories">
+  <h2>Top Categories</h2>
+  <div class="categories-grid">
+    <div class="category-card">
+      <span class="icon">🌿</span>
+      <p>Gardening</p>
+    </div>
+    <div class="category-card">
+      <span class="icon">🧹</span>
+      <p>Cleaning</p>
+    </div>
+    <div class="category-card">
+      <span class="icon">🚗</span>
+      <p>Car Detailing</p>
+    </div>
+    <div class="category-card">
+      <span class="icon">🛠️</span>
+      <p>Repairs</p>
+    </div>
+    <div class="category-card">
+      <span class="icon">🧰</span>
+      <p>Handyman</p>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}

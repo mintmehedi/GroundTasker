@@ -1,0 +1,136 @@
+body {
+  background-color: #fdfdfd;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 380px;
+  padding: 40px 30px;
+  background: #ffffff;
+  border-radius: 16px;
+  transition: all 0.3s ease-in-out;
+}
+
+.login-box h2 {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 32px;
+  text-align: center;
+  color: #1f2937;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  font-size: 15px;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #a3b758;
+}
+
+.input-password {
+  position: relative;
+}
+
+.input-password input {
+  padding-right: 40px;
+}
+
+.input-password span {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #9ca3af;
+  user-select: none;
+}
+
+.btn-login {
+  width: 100%;
+  background-color: #a3b758;
+  border: none;
+  color: white;
+  padding: 12px;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-login:hover {
+  background-color: #8aa348;
+}
+
+.small-text {
+  font-size: 14px;
+  text-align: center;
+  margin-top: 24px;
+  color: #6b7280;
+}
+
+.small-text a {
+  color: #f59e0b;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* 🚫 Remove native browser reveal icons on password fields */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+}
+
+input[type="password"]::-webkit-inner-spin-button,
+input[type="password"]::-webkit-outer-spin-button {
+  display: none !important;
+}
+
+input[type="password"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}

@@ -1,0 +1,180 @@
+/* =============== GENERAL STYLES =============== */
+body {
+  background-color: #f9fafb;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+
+.profile-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.profile-box {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.profile-box h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #1f2937;
+  text-align: center;
+}
+
+/* =============== FORM FIELDS =============== */
+.form-group {
+  margin-bottom: 24px;
+  position: relative;
+  width: 100%;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 15px;
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+  border-color: #a3b758;
+}
+
+/* =============== RADIO BUTTONS =============== */
+.custom-radio-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.custom-radio {
+  flex: 1 1 48%;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  padding: 14px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+  font-size: 14px;
+  color: #1f2937;
+  transition: all 0.2s ease-in-out;
+}
+
+.custom-radio input {
+  display: none;
+}
+
+.custom-radio:hover {
+  border-color: #a3b758;
+  background-color: #f3f4f6;
+}
+
+.custom-radio input:checked + span {
+  font-weight: 600;
+  color: #a3b758;
+}
+
+/* =============== SAVE BUTTON =============== */
+.btn-save {
+  width: 100%;
+  background-color: #a3b758;
+  color: white;
+  padding: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-save:hover {
+  background-color: #8aa348;
+}
+
+/* =============== SUGGESTIONS =============== */
+/* NEW wrapper around the input */
+.suggestion-wrapper {
+  position: relative;
+}
+
+/* Suggestion box floats OVER the form */
+.suggestion-box {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 999;
+
+  width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Suggestion item style */
+.suggestion-box {
+  position: absolute;
+  z-index: 9999;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+}
+
+.suggestion-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background-color: #f3f4f6;
+}
+
+.no-resize-group {
+  position: relative;
+  padding-bottom: 60px;  /* reserves space so layout doesn’t jump */
+}
