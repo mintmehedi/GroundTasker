@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/post_task.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="post-task-container">
+  <h2>Post a New Task</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <label for="id_title">What do you need done?</label>
+    {{ form.title }}
+
+    <label for="id_description">Task Description</label>
+    {{ form.description }}
+
+    <label for="id_location">Location</label>
+    <input type="text" id="location-input" name="location" placeholder="e.g. Wollongong, NSW 2500">
+    <ul id="suggestions" class="suggestion-box"></ul>
+
+    <label for="id_budget">Budget ($AUD)</label>
+    <div class="budget-wrapper">
+        <input type="text" id="id_budget" name="budget" placeholder="💲 Enter budget">
+    </div>
+
+    <label for="id_due_date">When should it be done?</label>
+    <div class="date-options">
+      <select name="due_type" id="due-type">
+        <option value="on_date">On date</option>
+        <option value="before_date">Before date</option>
+        <option value="flexible">I'm flexible</option>
+      </select>
+      <input type="text" id="date-picker" name="due_date" placeholder="Pick a date">
+    </div>
+
+    <button type="submit" class="btn-submit">Next</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+
+  // ========== Modern calendar ==========
+  flatpickr("#date-picker", {
+    altInput: true,
+    altFormat: "F j, Y",
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    disableMobile: "true", // force full UI
+    nextArrow: "→",
+    prevArrow: "←",
+  });
+
+  // ========== AusPost API Autocomplete ==========
+  const input = document.getElementById('location-input');
+  const suggestionBox = document.getElementById('suggestions');
+
+  input.addEventListener('input', () => {
+    const term = input.value.trim();
+    suggestionBox.innerHTML = '';
+
+    if (term.length >= 2) {
+      fetch(`/api/auspost/?q=${term}`)
+        .then(res => res.json())
+        .then(data => {
+          let results = [];
+
+          if (data.localities && data.localities.locality) {
+            results = Array.isArray(data.localities.locality)
+              ? data.localities.locality
+              : [data.localities.locality];
+          }
+
+          const rect = input.getBoundingClientRect();
+          suggestionBox.style.top = `${window.scrollY + rect.bottom + 4}px`;
+          suggestionBox.style.left = `${window.scrollX + rect.left}px`;
+          suggestionBox.style.width = `${rect.width}px`;
+          suggestionBox.style.display = 'block';
+
+          results.slice(0, 6).forEach(loc => {
+            const li = document.createElement('li');
+            li.textContent = `${loc.location}, ${loc.state} ${loc.postcode}`;
+            li.classList.add('suggestion-item');
+            li.onclick = () => {
+              input.value = `${loc.location}, ${loc.state} ${loc.postcode}`;
+              suggestionBox.innerHTML = '';
+              suggestionBox.style.display = 'none';
+            };
+            suggestionBox.appendChild(li);
+          });
+        })
+        .catch(err => {
+          console.error("AusPost API error:", err);
+        });
+    } else {
+      suggestionBox.style.display = 'none';
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!suggestionBox.contains(e.target) && e.target !== input) {
+      suggestionBox.innerHTML = '';
+      suggestionBox.style.display = 'none';
+    }
+  });
+
+  // ========== Auto-add "$" for budget ==========
+  const budgetInput = document.getElementById("id_budget");
+  budgetInput.addEventListener("input", () => {
+    if (budgetInput.value.startsWith("$")) {
+      budgetInput.value = budgetInput.value.replace(/^\$/, '');
+    }
+  });
+
+  // Ensure only digits + dot (no $ typed manually)
+budgetInput.addEventListener("input", () => {
+  budgetInput.value = budgetInput.value.replace(/[^\d.]/g, '');
+});
+
+</script>
+{% endblock %}

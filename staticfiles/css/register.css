@@ -92,3 +92,9 @@ body {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.alert-danger p {
+  color: #dc2626;
+  font-size: 14px;
+  margin: 4px 0;
+}

@@ -16,10 +16,10 @@
   <!-- Header -->
   <header class="main-header">
     <div class="container header-inner">
-      <a href="#" class="logo">GroundTasker</a>
+      <a href="{% url 'home' %}" class="logo">GroundTasker</a>
       <nav class="main-nav">
-        <a href="#" class="primary-nav">Post a Task</a>
-        <a href="#">Browse Task</a>
+        <a href="{% url 'post_task' %}" class="primary-nav">Post a Task</a>
+        <a href="{% url 'job_list' %}">Browse Task</a>
       </nav>
       <div class="header-actions">
         <a href="#">Help</a>
@@ -40,6 +40,8 @@
     <p>GroundTasker — CSCI334 Group 6 Project, University of Wollongong</p>
     <p>Designed & developed as part of Software Design coursework, 2025.</p>
   </footer>
+
+  {% block extra_js %}{% endblock %}
 
 </body>
 </html>

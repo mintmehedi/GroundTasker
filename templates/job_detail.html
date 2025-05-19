@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/job_detail.css' %}">
+{% endblock %}
+
+{% include 'partials/job_list_panel.html' with tasks=tasks active_id=task.id %}
+
+{% block content %}
+<div class="job-detail-layout">
+  <!-- Left: Task List -->
+  <div class="task-list-panel">
+    <h3>Browse Tasks</h3>
+    {% for t in tasks %}
+      <a href="{% url 'job_detail' t.id %}" class="task-card {% if t.id == task.id %}active{% endif %}">
+        <h4>{{ t.title }}</h4>
+        <p>{{ t.location }}</p>
+        <strong>${{ t.budget }}</strong>
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Right: Detail View -->
+<div class="task-detail-panel">
+  <h2>{{ task.title }}</h2>
+
+  <div class="detail-row">
+    <strong>📍 Location:</strong> {{ task.location }}
+  </div>
+
+  <div class="detail-row">
+    <strong>📅 Date:</strong> {{ task.preferred_date }}
+  </div>
+
+  <div class="detail-row">
+    <strong>⏰ Time:</strong> {{ task.preferred_time }}
+  </div>
+
+  <div class="detail-row">
+    <strong>📝 Description:</strong>
+    <p>{{ task.description }}</p>
+  </div>
+
+  <div class="budget-box">
+    <span>💰 Budget</span>
+    <h3>${{ task.budget }}</h3>
+  </div>
+
+  <button class="apply-btn" disabled>🔧 Offer to help (coming soon)</button>
+</div>
+
+{% endblock %}
