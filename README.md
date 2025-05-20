@@ -1,1 +1,1 @@
-We works on ground not in the air. 
+We work on the ground, not in the air.
