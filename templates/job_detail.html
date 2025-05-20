@@ -1,53 +1,119 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/job_detail.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 {% endblock %}
 
-{% include 'partials/job_list_panel.html' with tasks=tasks active_id=task.id %}
-
 {% block content %}
-<div class="job-detail-layout">
-  <!-- Left: Task List -->
-  <div class="task-list-panel">
-    <h3>Browse Tasks</h3>
-    {% for t in tasks %}
-      <a href="{% url 'job_detail' t.id %}" class="task-card {% if t.id == task.id %}active{% endif %}">
-        <h4>{{ t.title }}</h4>
-        <p>{{ t.location }}</p>
-        <strong>${{ t.budget }}</strong>
-      </a>
-    {% endfor %}
+<div class="job-detail-wrapper page-enter">
+  <div class="job-detail-card">
+    <div class="job-detail-header">
+      <div class="job-header-left">
+        <a href="{% url 'job_list' %}" class="back-link">← Back to Job Listings</a>
+        <h1 class="job-title">{{ task.title }}</h1>
+        <div class="job-info">
+          <p><strong>📍 Location:</strong> {{ task.location }}</p>
+          <p><strong>🗓️ Preferred Date:</strong> {{ task.preferred_date }}</p>
+          <p><strong>⏰ Preferred Time:</strong> {{ task.preferred_time }}</p>
+          <p><strong>👤 Posted by:</strong> John Doe</p>
+        </div>
+      </div>
+      <div class="job-header-right">
+        <div class="action-buttons">
+          <button class="bookmark-btn" id="bookmarkBtn" title="Bookmark">
+            <i class="bi bi-bookmark" id="bookmarkIcon"></i>
+          </button>
+          <a href="#" class="report-link" id="openReport">🚩 Report Job</a>
+        </div>
+        <div class="budget-highlight">
+          <span class="label">Budget</span>
+          <h2>${{ task.budget }}</h2>
+          <button class="job-cta-btn">💼 Make an Offer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="job-description">
+      <h3>Description</h3>
+      <p>{{ task.description }}</p>
+    </div>
+
+    <div class="job-special-notes">
+      <h4>🔖 Special Notes</h4>
+      <ul>
+        <li>Please bring your own tools.</li>
+        <li>Prefer weekend availability.</li>
+        <li>Be punctual and respectful.</li>
+      </ul>
+    </div>
+
+    <div class="job-attachment">
+      <h4>📎 Attachments</h4>
+      <p class="note">Attachments feature coming soon. This will allow users to upload images or documents related to the task.</p>
+      <input type="file" disabled class="upload-input">
+    </div>
   </div>
-
-  <!-- Right: Detail View -->
-<div class="task-detail-panel">
-  <h2>{{ task.title }}</h2>
-
-  <div class="detail-row">
-    <strong>📍 Location:</strong> {{ task.location }}
-  </div>
-
-  <div class="detail-row">
-    <strong>📅 Date:</strong> {{ task.preferred_date }}
-  </div>
-
-  <div class="detail-row">
-    <strong>⏰ Time:</strong> {{ task.preferred_time }}
-  </div>
-
-  <div class="detail-row">
-    <strong>📝 Description:</strong>
-    <p>{{ task.description }}</p>
-  </div>
-
-  <div class="budget-box">
-    <span>💰 Budget</span>
-    <h3>${{ task.budget }}</h3>
-  </div>
-
-  <button class="apply-btn" disabled>🔧 Offer to help (coming soon)</button>
 </div>
 
+<!-- Report Modal -->
+<div class="report-modal" id="reportModal" style="display: none;">
+  <div class="report-box">
+    <div class="report-header">
+      <h3>Report This Job</h3>
+      <button class="close-modal" id="closeReport">&times;</button>
+    </div>
+    <p>Please select a reason and add any comments below:</p>
+    <form id="reportForm">
+      <div class="checkboxes">
+        <label><input type="checkbox" name="reason" value="spam"> Spam or scam</label><br>
+        <label><input type="checkbox" name="reason" value="inappropriate"> Inappropriate content</label><br>
+        <label><input type="checkbox" name="reason" value="duplicate"> Duplicate or misleading</label>
+      </div>
+      <textarea placeholder="Describe the issue..." name="message"></textarea>
+      <button type="submit">Submit Report</button>
+    </form>
+  </div>
+</div>
+
+<!-- Report Confirmation Toast -->
+<div class="report-thanks" id="reportThanks">
+  ✅ Thanks for reporting. We'll review this job shortly!
+</div>
+
+<script>
+  // Toggle Bookmark
+  const bookmarkBtn = document.getElementById('bookmarkBtn');
+  const bookmarkIcon = document.getElementById('bookmarkIcon');
+  let bookmarked = false;
+
+  bookmarkBtn.addEventListener('click', () => {
+    bookmarked = !bookmarked;
+    bookmarkIcon.className = bookmarked ? 'bi bi-bookmark-fill' : 'bi bi-bookmark';
+  });
+
+  // Report Modal Controls
+  const openReport = document.getElementById('openReport');
+  const reportModal = document.getElementById('reportModal');
+  const closeReport = document.getElementById('closeReport');
+  const reportForm = document.getElementById('reportForm');
+  const reportThanks = document.getElementById('reportThanks');
+
+  openReport.addEventListener('click', (e) => {
+    e.preventDefault();
+    reportModal.style.display = 'flex';
+  });
+
+  closeReport.addEventListener('click', () => {
+    reportModal.style.display = 'none';
+  });
+
+  reportForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    reportModal.style.display = 'none';
+    reportThanks.style.display = 'block';
+    setTimeout(() => reportThanks.style.display = 'none', 3000);
+  });
+</script>
 {% endblock %}

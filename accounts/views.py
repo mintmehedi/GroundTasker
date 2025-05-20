@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, CreateView
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -33,6 +33,10 @@ class RegisterView(CreateView):
 # Custom Login View
 class CustomLoginView(LoginView):
     template_name = 'login.html'
+
+# Logout confirmation view
+class LogoutConfirmView(TemplateView):
+    template_name = 'logout_confirm.html'
 
 # Profile Setup View
 @login_required

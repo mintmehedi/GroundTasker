@@ -1,0 +1,81 @@
+.notifications-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 24px;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px); /* fits screen below header/footer */
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.notifications-header h2 {
+  font-size: 24px;
+  color: #1f2937;
+}
+
+.filter-options {
+  display: flex;
+  gap: 10px;
+}
+
+.filter {
+  padding: 6px 12px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.filter.active,
+.filter:hover {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+
+.notifications-scroll {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 6px;
+}
+
+.notification-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.notification-row.unread {
+  background: #f1fdf3;
+}
+
+.notif-icon {
+  font-size: 22px;
+  margin-top: 2px;
+}
+
+.notif-text {
+  flex: 1;
+}
+
+.notif-text p {
+  margin: 0;
+  color: #374151;
+  font-size: 15px;
+}
+
+.notif-meta {
+  font-size: 12px;
+  color: #9ca3af;
+}

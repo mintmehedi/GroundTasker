@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="notifications-page">
+  <div class="notifications-header">
+    <h2>🔔 Notifications</h2>
+    <div class="filter-options">
+      <button class="filter active">All</button>
+      <button class="filter">Tasks</button>
+      <button class="filter">Offers</button>
+      <button class="filter">Messages</button>
+    </div>
+  </div>
+
+  <div class="notifications-scroll">
+    {% for notification in notifications %}
+    <div class="notification-row {{ notification.status|default:'' }}">
+      <div class="notif-icon">📩</div>
+      <div class="notif-text">
+        <p><strong>{{ notification.sender }}</strong> {{ notification.message }}</p>
+        <span class="notif-meta">{{ notification.timestamp }}</span>
+      </div>
+    </div>
+    {% empty %}
+    <p>No notifications to show.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

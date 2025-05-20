@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Outfit:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -22,10 +23,29 @@
         <a href="{% url 'job_list' %}">Browse Task</a>
       </nav>
       <div class="header-actions">
-        <a href="#">Help</a>
-        <a href="#">Notifications</a>
-        <a href="#">Messages</a>
-        <div class="profile-icon">👤</div>
+        <a href="{% url 'support' %}">Help</a>
+        <a href="{% url 'notifications' %}">Notifications</a>
+        <a href="{% url 'messages' %}">Messages</a>
+
+        {% if request.user.is_authenticated %}
+        <div class="profile-dropdown">
+          <div class="profile-icon" id="profileToggle">👤</div>
+          <div class="dropdown-menu" id="profileMenu">
+            <a href="#">👤 View Profile</a>
+            <a href="{% url 'manage_tasks' %}">🧾 Manage Tasks</a>
+            <div class="dropdown-sub">
+              <a href="#" class="settings-toggle">⚙️ Settings ▾</a>
+              <div class="sub-options">
+                <a href="#">✉️ Change Email</a>
+                <a href="#">🔑 Change Password</a>
+              </div>
+            </div>
+            <a href="{% url 'logout_confirm' %}">🚪 Logout</a>
+          </div>
+        </div>
+        {% else %}
+        <a href="{% url 'login' %}" class="login-link">Login</a>
+        {% endif %}
       </div>
     </div>
   </header>
@@ -37,9 +57,33 @@
 
   <!-- Footer -->
   <footer class="main-footer">
-    <p>GroundTasker — CSCI334 Group 6 Project, University of Wollongong</p>
+    {% now 'Y' as year %}
+    <p>© {{ year }} GroundTasker — CSCI334 Group 6 Project, University of Wollongong</p>
     <p>Designed & developed as part of Software Design coursework, 2025.</p>
   </footer>
+
+  <script>
+    const profileToggle = document.getElementById('profileToggle');
+    const profileMenu = document.getElementById('profileMenu');
+    const settingsToggle = document.querySelector('.settings-toggle');
+    const subOptions = document.querySelector('.sub-options');
+
+    profileToggle?.addEventListener('click', () => {
+      profileMenu.classList.toggle('show');
+    });
+
+    settingsToggle?.addEventListener('click', (e) => {
+      e.preventDefault();
+      subOptions.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.profile-dropdown')) {
+        profileMenu?.classList.remove('show');
+        subOptions?.classList.remove('show');
+      }
+    });
+  </script>
 
   {% block extra_js %}{% endblock %}
 

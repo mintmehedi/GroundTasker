@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/messages.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="message-wrapper">
+  <div class="sidebar">
+    {% for convo in conversations %}
+      <div class="user {% if convo.active %}active{% endif %}" onclick="openChat('{{ convo.task_id }}')">
+        <div><strong>{{ convo.username }}</strong></div>
+        <div style="font-size: 13px; color: #555;">{{ convo.title }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="chat-panel">
+    {% for convo in conversations %}
+      <div id="chat-{{ convo.task_id }}" class="chat-box {% if convo.active %}active{% endif %}">
+        <div class="message from">Hey, I'm ready for: {{ convo.title }}</div>
+        <div class="message to">Awesome! Let's do it.</div>
+      </div>
+    {% endfor %}
+
+    <div class="message-input">
+      <input type="text" placeholder="Type a message..." />
+      <button>Send</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function openChat(id) {
+    document.querySelectorAll('.chat-box').forEach(box => box.classList.remove('active'));
+    document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
+    document.getElementById(`chat-${id}`).classList.add('active');
+    document.querySelector(`.user[onclick*="${id}"]`).classList.add('active');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const defaultId = '{{ selected_task_id|default:"" }}';
+    if (defaultId && document.getElementById(`chat-${defaultId}`)) {
+      openChat(defaultId);
+    } else {
+      document.querySelectorAll('.chat-box')[0]?.classList.add('active');
+      document.querySelectorAll('.user')[0]?.classList.add('active');
+    }
+  });
+</script>
+{% endblock %}

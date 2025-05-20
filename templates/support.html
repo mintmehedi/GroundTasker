@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/support.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="support-page">
+  <h2>🆘 Help & Support Center</h2>
+  <p>If you're experiencing issues, please browse the FAQs or submit a support ticket.</p>
+
+  <div class="support-grid">
+    <!-- FAQs Section -->
+    <div class="faq-box">
+      <h3>📖 Frequently Asked Questions</h3>
+
+      <div class="faq-item">
+        <button class="faq-question">How do I post a task?</button>
+        <div class="faq-answer">
+          Click “Post a Task” in the header, fill out the form with task details, budget, and timing, then submit. It will appear publicly on the browse tasks page.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">How do I make or receive an offer?</button>
+        <div class="faq-answer">
+          Once a task is posted, users can view it and click “Make an Offer.” The task owner can review offers and accept the one that fits best.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">How are payments handled?</button>
+        <div class="faq-answer">
+          Currently payments are handled outside the platform. Future updates will integrate secure payment gateways like Stripe or PayPal.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">How can I contact someone securely?</button>
+        <div class="faq-answer">
+          Once you're engaged in a task, you can use the built-in messaging system to communicate directly without exposing personal details.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">What if I want to cancel a job?</button>
+        <div class="faq-answer">
+          You can cancel a job from the “Manage Tasks” page. It's best to notify the other party beforehand to avoid confusion.
+        </div>
+      </div>
+    </div>
+
+    <!-- Support Form Section -->
+    <div class="form-box">
+      <h3>🎫 Submit a Support Ticket</h3>
+      <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        <label for="full_name">Your Name</label>
+        <input type="text" id="full_name" name="full_name" required>
+
+        <label for="email">Your Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="category">Issue Category</label>
+        <select id="category" name="category">
+          <option>Technical Issue</option>
+          <option>Payment Issue</option>
+          <option>Task Dispute</option>
+          <option>Account Problem</option>
+          <option>Other</option>
+        </select>
+
+        <label for="issue">Describe Your Issue</label>
+        <textarea id="issue" name="issue" rows="5" required></textarea>
+
+        <label for="screenshot">Attach Screenshot or File (optional)</label>
+        <input type="file" id="screenshot" name="attachment">
+
+        <button type="submit">Submit Ticket</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const faqButtons = document.querySelectorAll('.faq-question');
+
+    faqButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const answer = btn.nextElementSibling;
+        answer.classList.toggle('show');
+        btn.classList.toggle('open');
+      });
+    });
+  });
+</script>
+{% endblock %}

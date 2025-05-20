@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="text-center" style="padding: 80px 20px;">
+  <h2>You’ve been successfully logged out ✅</h2>
+  <p>Thanks for visiting GroundTasker. We hope to see you again soon!</p>
+  <a href="{% url 'login' %}" class="btn btn-warning mt-4">Login Again</a>
+  <a href="{% url 'home' %}" class="btn btn-secondary mt-4">Back to Home</a>
+</div>
+{% endblock %}

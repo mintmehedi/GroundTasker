@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import TaskForm
-
+from django.http import Http404
+from .models import Task, Offer
 
 # TEMPORARY SAMPLE DATA
 sample_tasks = [
     {
         'id': 1,
         'title': 'Weed backyard',
+        'username': 'Mark',
         'description': 'Remove weeds and tidy the backyard.',
         'location': 'Parramatta, NSW',
         'budget': 100,
@@ -17,6 +19,7 @@ sample_tasks = [
     {
         'id': 2,
         'title': 'Fix sink',
+        'username': 'Sarah',
         'description': 'Leaking pipe under kitchen sink.',
         'location': 'Wollongong, NSW',
         'budget': 150,
@@ -26,6 +29,7 @@ sample_tasks = [
     {
         'id': 3,
         'title': 'Dog walking',
+        'username': 'John',
         'description': 'Walk my dog for an hour.',
         'location': 'Sydney, NSW',
         'budget': 50,
@@ -35,6 +39,7 @@ sample_tasks = [
     {
         'id': 4,
         'title': 'Grocery shopping',
+        'username': 'Emily',
         'description': 'Buy groceries for the week.',
         'location': 'Bondi, NSW',
         'budget': 80,
@@ -44,6 +49,7 @@ sample_tasks = [
     {
         'id': 5,
         'title': 'Car wash',
+        'username': 'Michael',
         'description': 'Wash and vacuum my car.',
         'location': 'Wollongong, NSW',
         'budget': 30,
@@ -81,15 +87,56 @@ def job_list(request):
     })
 
 
+
 def job_detail(request, task_id):
-    # Reformat sample_tasks into dict for lookup
+    # TEMP: Sample tasks used for frontend development
     task_dict = {task['id']: task for task in sample_tasks}
-    
+
+    # Try to find the task by its ID
     task = task_dict.get(task_id)
     if not task:
-        return render(request, '404.html')
+        # Swap with raise Http404 or redirect if real task not found
+        raise Http404("Task not found")
 
     return render(request, 'job_detail.html', {
-        'task': task,
-        'tasks': sample_tasks
+        'task': task
     })
+
+# BACKEND note:
+# Later, replace this with:
+# from .models import Task
+# task = get_object_or_404(Task, id=task_id)
+
+### -------------------- Manage Tasks View -------------------- #
+@login_required
+def manage_tasks(request):
+    # MOCKED tab data
+    posted_tasks = sample_tasks[:3]
+    applied_offers = [
+        {'task': sample_tasks[1], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'pending'},
+        {'task': sample_tasks[3], 'amount': 75, 'message': "Available Sunday", 'status': 'rejected'},
+    ]
+    engaged_offers = [
+        {'task': sample_tasks[0], 'amount': 100, 'message': "Booked in", 'status': 'accepted'},
+    ]
+    bookmarked_tasks = [sample_tasks[2], sample_tasks[4]]
+
+    return render(request, 'manage_tasks.html', {
+        'posted_tasks': posted_tasks,
+        'applied_offers': applied_offers,
+        'engaged_offers': engaged_offers,
+        'bookmarked_tasks': bookmarked_tasks,
+    })
+
+
+# TEMP: Simulated posted/applied/bookmarked/engaged task structure
+posted_tasks = sample_tasks[:3]  # First 3 as posted
+applied_offers = [
+    {'task': sample_tasks[1], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'pending'},
+    {'task': sample_tasks[3], 'amount': 75, 'message': "Available Sunday", 'status': 'rejected'},
+]
+engaged_offers = [
+    {'task': sample_tasks[0], 'amount': 100, 'message': "Booked in", 'status': 'accepted'},
+    {'task': sample_tasks[1], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'pending'},
+]
+bookmarked_tasks = [sample_tasks[2], sample_tasks[4]]  # Just simulate a couple
