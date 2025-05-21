@@ -7,6 +7,7 @@ from .views import (
     profile_setup,
     auspost_proxy,
     LogoutConfirmView,
+    view_profile,
 )
 
 urlpatterns = [
@@ -17,5 +18,7 @@ urlpatterns = [
     path('api/auspost/', auspost_proxy, name='auspost_proxy'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('logout-confirm/', LogoutConfirmView.as_view(), name='logout_confirm'),
+    path('profile/', view_profile, name='view_profile'),
+
 
 ]

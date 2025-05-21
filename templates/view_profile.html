@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/view_profile.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+  <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  <h2>👤 Edit Your Public Profile</h2>
+
+  <div class="profile-grid">
+    <!-- Avatar and Summary Card -->
+    <div class="profile-left">
+      <div class="avatar-wrapper" onmouseenter="showEditIcon()" onmouseleave="hideEditIcon()">
+        <div class="avatar-circle" id="avatarCircle">{{ user.username|slice:":1"|upper }}</div>
+        <img id="avatarImage" src="" style="display: none;" />
+        <label for="avatarUpload" class="avatar-edit" id="editIcon">✍🏼Edit</label>
+        <input type="file" id="avatarUpload" style="display: none;" accept="image/*" onchange="previewAvatar(event)">
+      </div>
+      <h3>{{ user.username }}</h3>
+      <p class="email">{{ user.email }}</p>
+      <div class="rating-stars" id="starRating"></div>
+    </div>
+
+    <!-- Profile Form -->
+    <form method="post" enctype="multipart/form-data" class="profile-form" id="profileForm">
+      {% csrf_token %}
+
+      <label for="bio">About You</label>
+      <textarea id="bio" name="bio">{{ profile.bio }}</textarea>
+
+      <label for="skills">Skills</label>
+      <input id="skills" name="skills" value="{{ profile.skills }}">
+
+      <label for="location-input">Location</label>
+      <input type="text" id="location-input" name="location" value="{{ profile.location }}" autocomplete="off">
+      <ul id="suggestions"></ul>
+
+      <label>Certifications (PDF, JPG, PNG)</label>
+      <div class="dropzone" id="cert-upload"></div>
+
+      <div class="certification-wrapper" id="certificationInputs"></div>
+
+      <button type="submit">Save Profile</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+  <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+
+  <script>
+    new Tagify(document.querySelector('#skills'), {
+      whitelist: ['Web Development', 'Graphic Design', 'Plumbing', 'Electrical', 'Cleaning', 'Gardening', 'Tutoring', 'Photography', 'Car Repair', 'Moving Help'],
+      dropdown: { enabled: 1, fuzzySearch: true }
+    });
+
+    const certTypes = ['Police Check', 'Trade License', 'Working With Children', 'First Aid', 'Insurance', 'Other'];
+
+    const certDropzone = new Dropzone('#cert-upload', {
+      url: '/upload-cert/',
+      autoProcessQueue: false,
+      acceptedFiles: '.pdf,.jpg,.jpeg,.png',
+      maxFiles: 3,
+      init: function () {
+        this.on("addedfile", function (file) {
+          const wrapper = document.getElementById('certificationInputs');
+          const row = document.createElement('div');
+          row.classList.add('certification-item');
+
+          const label = document.createElement('span');
+          label.innerText = file.name;
+          label.style.fontWeight = '500';
+
+          const dropdown = document.createElement('select');
+          dropdown.name = `cert_type_${file.upload.uuid}`;
+          certTypes.forEach(type => {
+            const opt = document.createElement('option');
+            opt.value = type;
+            opt.innerText = type;
+            dropdown.appendChild(opt);
+          });
+
+          row.appendChild(label);
+          row.appendChild(dropdown);
+          wrapper.appendChild(row);
+        });
+      }
+    });
+
+    function previewAvatar(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          const img = document.getElementById('avatarImage');
+          img.src = evt.target.result;
+          img.style.display = 'block';
+          document.getElementById('avatarCircle').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function showEditIcon() {
+      document.getElementById('editIcon').style.display = 'inline';
+    }
+    function hideEditIcon() {
+      document.getElementById('editIcon').style.display = 'none';
+    }
+
+    const stars = document.getElementById('starRating');
+    const rating = parseFloat("{{ profile.average_rating|default:4.7 }}");
+    for (let i = 1; i <= 5; i++) {
+      const span = document.createElement('span');
+      span.innerHTML = i <= rating ? '★' : (i - rating < 1 ? '☆' : '☆');
+      span.className = i <= rating ? 'star filled' : 'star';
+      stars.appendChild(span);
+    }
+
+    const input = document.getElementById('location-input');
+    const suggestionBox = document.getElementById('suggestions');
+
+    input.addEventListener('input', () => {
+      const term = input.value.trim();
+      suggestionBox.innerHTML = '';
+
+      if (term.length >= 2) {
+        fetch(`/api/auspost/?q=${term}`)
+          .then(res => res.json())
+          .then(data => {
+            let results = [];
+            if (data.localities && data.localities.locality) {
+              results = Array.isArray(data.localities.locality)
+                ? data.localities.locality
+                : [data.localities.locality];
+            }
+            const rect = input.getBoundingClientRect();
+            suggestionBox.style.top = `${window.scrollY + rect.bottom + 4}px`;
+            suggestionBox.style.left = `${window.scrollX + rect.left}px`;
+            suggestionBox.style.width = `${rect.width}px`;
+            suggestionBox.style.display = 'block';
+
+            results.slice(0, 6).forEach(loc => {
+              const li = document.createElement('li');
+              li.textContent = `${loc.location}, ${loc.state} ${loc.postcode}`;
+              li.classList.add('suggestion-item');
+              li.onclick = () => {
+                input.value = `${loc.location}, ${loc.state} ${loc.postcode}`;
+                suggestionBox.innerHTML = '';
+                suggestionBox.style.display = 'none';
+              };
+              suggestionBox.appendChild(li);
+            });
+          });
+      } else {
+        suggestionBox.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('click', e => {
+      if (!suggestionBox.contains(e.target) && e.target !== input) {
+        suggestionBox.innerHTML = '';
+        suggestionBox.style.display = 'none';
+      }
+    });
+  </script>
+{% endblock %}

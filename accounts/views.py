@@ -74,3 +74,17 @@ def auspost_proxy(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
+
+
+# -------------------- View Profile -------------------- #
+@login_required
+def view_profile(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        profile.bio = request.POST.get('bio')
+        profile.skills = request.POST.get('skills')
+        profile.location = request.POST.get('location')
+        profile.save()
+    
+    return render(request, 'view_profile.html', {'user': request.user, 'profile': profile})
