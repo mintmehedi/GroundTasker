@@ -31,7 +31,7 @@
         <div class="profile-dropdown">
           <div class="profile-icon" id="profileToggle">👤</div>
           <div class="dropdown-menu" id="profileMenu">
-            <a href="#">👤 View Profile</a>
+            <a href="{% url 'view_profile' %">👤 View Profile</a>
             <a href="{% url 'manage_tasks' %}">🧾 Manage Tasks</a>
             <div class="dropdown-sub">
               <a href="#" class="settings-toggle">⚙️ Settings ▾</a>
@@ -59,7 +59,7 @@
   <footer class="main-footer">
     {% now 'Y' as year %}
     <p>© {{ year }} GroundTasker — CSCI334 Group 6 Project, University of Wollongong</p>
-    <p>Designed & developed as part of Software Design coursework, 2025.</p>
+    <p>Designed & developed as part of Software Design coursework, Autumn 2025.</p>
   </footer>
 
   <script>

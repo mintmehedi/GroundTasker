@@ -1,5 +1,7 @@
-# core/views.py
+
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from accounts.models import Profile 
 from tasks.views import engaged_offers  # import from your task app
 
 def messages_view(request):

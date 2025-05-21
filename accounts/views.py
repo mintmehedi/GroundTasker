@@ -73,3 +73,4 @@ def auspost_proxy(request):
         return JsonResponse(response.json(), safe=False)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+

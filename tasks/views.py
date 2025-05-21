@@ -140,3 +140,14 @@ engaged_offers = [
     {'task': sample_tasks[1], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'pending'},
 ]
 bookmarked_tasks = [sample_tasks[2], sample_tasks[4]]  # Just simulate a couple
+
+# -------------------- Offer Management View -------------------- #
+def make_offer_view(request, task_id):
+    # Simulate fetching task from sample data
+    task_dict = {task['id']: task for task in sample_tasks}
+    task = task_dict.get(task_id)
+
+    if not task:
+        raise Http404("Task not found")
+
+    return render(request, 'make_offer.html', {'task': task})

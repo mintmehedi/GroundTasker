@@ -1,0 +1,98 @@
+.make-offer-page {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 0 24px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Minimal top summary */
+.task-banner {
+  background: #f3f4f6;
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 14px;
+  justify-content: space-between;
+  color: #374151;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.offer-form-box {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.offer-form-box h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #1f2937;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+form label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+}
+
+/* 🧼 Remove number input arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+form input,
+form textarea,
+form select {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+}
+
+form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.legal-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+form button {
+  background-color: #10b981;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.2s ease;
+}
+
+form button:hover {
+  background-color: #0e9e6f;
+}
+
+/* Remove number arrows in Chrome/Safari */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/make_offer.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="make-offer-page">
+
+  <!-- Slim Task Summary at the Top -->
+  <div class="task-banner">
+    <div><strong>{{ task.title }}</strong></div>
+    <div>📍 {{ task.location }}</div>
+    <div>💰 ${{ task.budget }}</div>
+    <div>📅 {{ task.preferred_date }} at {{ task.preferred_time }}</div>
+  </div>
+
+  <!-- Offer Form -->
+  <div class="offer-form-box">
+    <h2>🤝 Make an Offer</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <label for="amount">💰 Your Offer Amount</label>
+      <input type="number" id="amount" name="amount" min="1" placeholder="e.g. 90" required>
+
+      <label for="message">✍️ Message to the Client</label>
+      <textarea id="message" name="message" rows="5" placeholder="Describe your experience or timing for this task..."></textarea>
+
+      <label for="availability">📆 Your Availability</label>
+      <input type="text" id="availability" name="availability" placeholder="e.g. Tomorrow afternoon, Weekends only">
+
+      <label for="attachment">📎 Attachment (optional)</label>
+      <input type="file" id="attachment" name="attachment" accept="image/*,application/pdf">
+
+      <div class="legal-hint">
+        ⚠️ Your offer is not final until accepted. Be professional and respectful.
+      </div>
+
+      <button type="submit">Submit Offer</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

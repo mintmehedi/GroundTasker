@@ -30,7 +30,7 @@
         <div class="budget-highlight">
           <span class="label">Budget</span>
           <h2>${{ task.budget }}</h2>
-          <button class="job-cta-btn">💼 Make an Offer</button>
+          <a href="{% url 'make_offer' task.id %}" class="job-cta-btn">Make an Offer</a>
         </div>
       </div>
     </div>
