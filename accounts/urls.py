@@ -7,7 +7,11 @@ from .views import (
     profile_setup,
     auspost_proxy,
     LogoutConfirmView,
-    view_profile,
+    edit_profile,
+    public_profile_view,
+    change_email, 
+    change_password,
+    dashboard,
 )
 
 urlpatterns = [
@@ -18,7 +22,11 @@ urlpatterns = [
     path('api/auspost/', auspost_proxy, name='auspost_proxy'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('logout-confirm/', LogoutConfirmView.as_view(), name='logout_confirm'),
-    path('profile/', view_profile, name='view_profile'),
+    path('profile/', edit_profile, name='edit_profile'),
+    path('profile/<str:username>/', public_profile_view, name='public_profile'),
+    path('settings/change-email/', change_email, name='change_email'),
+    path('settings/change-password/', change_password, name='change_password'),
+    path('dashboard/', dashboard, name='dashboard'),
 
 
 ]

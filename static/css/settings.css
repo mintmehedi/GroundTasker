@@ -1,0 +1,72 @@
+/* settings.css - shared by change_pass.html and change_email.html */
+
+.settings-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 24px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.settings-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 32px;
+}
+
+.settings-card h2 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #1e293b;
+}
+
+.form-block {
+  margin-bottom: 36px;
+}
+
+.form-block h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: #374151;
+}
+
+.form-block label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+}
+
+.form-block input {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f9fafb;
+  font-size: 14px;
+}
+
+.form-block button {
+  background-color: #10b981;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.form-block button:hover {
+  background-color: #0e9e6f;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 36px 0;
+}

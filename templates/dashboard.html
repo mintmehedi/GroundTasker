@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <h2 class="dashboard-heading">My Statistics & Reports</h2>
+  <p class="dashboard-sub">Track your freelance journey – see how much you've earned, how clients rate you, and what jobs you've completed.</p>
+
+  <!-- Performance Overview -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Completed Jobs</div>
+      <div class="stat-value">25</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Average Rating</div>
+      <div class="stat-value">4.8</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Feedback</div>
+      <div class="stat-value">35</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Earnings</div>
+      <div class="stat-value">$24,450.00</div>
+    </div>
+  </div>
+
+  <!-- Completed Jobs Table -->
+  <div class="table-section">
+    <h3>Completed Jobs</h3>
+    <table class="job-table">
+      <thead>
+        <tr>
+          <th>Job Title</th>
+          <th>Date Completed</th>
+          <th>Client</th>
+          <th>Earnings</th>
+          <th>Rating</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cleaning Kitchen</td>
+          <td>May 10, 2025</td>
+          <td>Jane Smith</td>
+          <td>$120.00</td>
+          <td>4.9</td>
+        </tr>
+        <tr>
+          <td>Weeding my garden</td>
+          <td>May 15, 2025</td>
+          <td>Mark Liu</td>
+          <td>$250.00</td>
+          <td>4.8</td>
+        </tr>
+      </tbody>
+    </table>
+    <a href="#" class="view-more">View More</a>
+  </div>
+
+  <!-- Feedback Section -->
+  <div class="feedback-section">
+    <h3>Feedback & Reviews</h3>
+    <div class="feedback-list">
+      <div class="feedback-card">
+        <div class="reviewer">Mark Liu <span class="rating">4.8</span></div>
+        <p class="comment">I'm very satisfied with the work......</p>
+      </div>
+      <div class="feedback-card">
+        <div class="reviewer">Jane Smith <span class="rating">4.9</span></div>
+        <p class="comment">I'm very satisfied with the work......</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

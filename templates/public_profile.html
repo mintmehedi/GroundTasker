@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/public_profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="public-profile-container">
+  <div class="profile-card">
+
+    <!-- Left Panel -->
+    <div class="profile-info">
+      <div class="avatar-circle">E</div>
+      <h2 class="username">Elon Musk</h2>
+      <p class="email">occupysun@die.com</p>
+
+      <div class="rating-stars">
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">☆</span>
+        <span class="rating-number">(4.0)</span>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="profile-details">
+
+      <!-- Edit button for owner's own view -->
+      <div class="edit-profile-button">
+        <a href="{% url 'edit_profile' %}">✍️ Edit Profile</a>
+      </div>
+
+      <div class="section">
+        <h3>About</h3>
+        <p>I’m Elon, a passionate cleaner and gardener based in Sydney.</p>
+      </div>
+
+      <div class="section">
+        <h3>Skills</h3>
+        <div class="skill-tags">
+          <span class="tag">Gardening</span>
+          <span class="tag">Window Cleaning</span>
+          <span class="tag">General Repairs</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Location</h3>
+        <p>Sydney, NSW 2000</p>
+      </div>
+
+      <div class="section">
+        <h3>Certifications</h3>
+        <ul class="cert-list">
+          <li><strong>Police Check</strong></li>
+          <li><strong>First Aid</strong></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

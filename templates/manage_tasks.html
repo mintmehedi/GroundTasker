@@ -11,7 +11,8 @@
     <a href="#" class="tab" data-tab="watchlist">🔖 Watchlist</a>
     <a href="#" class="tab active" data-tab="posted">📤 Posted Tasks</a>
     <a href="#" class="tab" data-tab="applied">📩 Applied</a>
-    <a href="#" class="tab" data-tab="engaged">✅ Task Engaged</a>
+    <a href="#" class="tab" data-tab="engaged">⏳ Task Engaged</a>
+    <a href="#" class="tab" data-tab="completed">🏁 Completed Tasks</a>
   </div>
 
   <!-- Watchlist Section -->
@@ -116,10 +117,44 @@
   {% else %}
     <p>No engaged tasks yet.</p>
   {% endif %}
-  <!-- here I tried to show the sample data task id 1 from views but it is not showing
- enggaged page but working on the message page  -->
 </div>
 
+<!-- Completed Section -->
+<div class="tab-panel" id="tab-completed" style="display: none;">
+  {% if completed_tasks %}
+    {% for item in completed_tasks %}
+      <div class="task-card">
+        <h3>{{ item.task.title }}</h3>
+        <p>📍 {{ item.task.location }}<br>💰 ${{ item.task.budget }}</p>
+        <p><strong>Completed with:</strong> {{ item.task.username }}</p>
+        <div class="card-actions">
+          <a href="{% url 'job_detail' item.task.id %}" class="btn-outline">View Details</a>
+          <button class="btn-accept" onclick="toggleReviewForm('{{ item.task.id }}')">Leave Review</button>
+        </div>
+
+        <!-- Hidden review form -->
+        <div class="review-form" id="review-form-{{ item.task.id }}" style="display: none; margin-top: 16px;">
+          <form method="post" action="#">
+            <label>Rating:</label>
+            <div class="star-rating" data-task-id="{{ item.task.id }}">
+              {% for i in "12345"|make_list %}
+                <span class="star" data-value="{{ forloop.counter }}">☆</span>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="rating" id="rating-input-{{ item.task.id }}">
+
+            <label for="comment-{{ item.task.id }}">Feedback:</label>
+            <textarea id="comment-{{ item.task.id }}" name="comment" rows="3" placeholder="Leave your comment..."></textarea>
+
+            <button class="btn-accept" type="submit">Submit Review</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No completed tasks yet.</p>
+  {% endif %}
+</div>
 
 
 <script>
@@ -137,16 +172,70 @@
     });
   });
 
-
+  // Function to mark task as complete
   function markComplete(offerId) {
-    const button = document.querySelector(`#engaged-task-${offerId} .btn-accept`);
-    const msg = document.getElementById(`completed-${offerId}`);
+  const button = document.querySelector(`button[onclick="markComplete('${offerId}')"]`);
+  const msg = document.getElementById(`completed-${offerId}`);
 
+  if (button && msg) {
     button.disabled = true;
     button.textContent = 'Completed';
-    button.style.backgroundColor = '#9ca3af'; // muted color
+    button.style.backgroundColor = '#9ca3af';
     msg.style.display = 'block';
   }
+}
+
+  function toggleReviewForm(taskId) {
+    const form = document.getElementById(`review-form-${taskId}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+
+  document.querySelectorAll('.star-rating').forEach(starContainer => {
+    const stars = starContainer.querySelectorAll('.star');
+    const taskId = starContainer.dataset.taskId;
+    const ratingInput = document.getElementById(`rating-input-${taskId}`);
+
+    stars.forEach((star, index) => {
+      star.addEventListener('mouseover', () => {
+        stars.forEach((s, i) => {
+          s.textContent = i <= index ? '★' : '☆';
+        });
+      });
+
+      star.addEventListener('click', () => {
+        ratingInput.value = index + 1;
+      });
+
+      starContainer.addEventListener('mouseleave', () => {
+        const selected = parseInt(ratingInput.value);
+        stars.forEach((s, i) => {
+          s.textContent = i < selected ? '★' : '☆';
+        });
+      });
+    });
+  });
+
+
+  // tab animation
+  tabs.forEach(tab => {
+  tab.addEventListener('click', e => {
+    e.preventDefault();
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    panels.forEach(panel => {
+      panel.style.display = 'none';
+      panel.classList.remove('fade-in');
+    });
+
+    const target = tab.dataset.tab;
+    const activePanel = document.getElementById('tab-' + target);
+    activePanel.style.display = 'block';
+
+    // Trigger animation
+    void activePanel.offsetWidth; // force reflow
+    activePanel.classList.add('fade-in');
+  });
+});
 
 
 </script>

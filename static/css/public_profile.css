@@ -1,0 +1,137 @@
+.public-profile-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 24px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.profile-card {
+  display: flex;
+  flex-wrap: wrap;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.profile-info {
+  flex: 1 1 260px;
+  background: #f9fafb;
+  padding: 24px;
+  text-align: center;
+}
+
+.avatar-circle {
+  width: 100px;
+  height: 100px;
+  background: #10b981;
+  color: #fff;
+  font-size: 36px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  border: 2px solid #ffffff;
+}
+
+.username {
+  margin-bottom: 4px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.email {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.rating-stars {
+  font-size: 20px;
+  color: #fbbf24;
+}
+
+.profile-details {
+  flex: 1 1 700px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section h3 {
+  font-size: 16px;
+  color: #1f2937;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.section p {
+  font-size: 14px;
+  color: #374151;
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  background: #e0f2f1;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  color: #065f46;
+}
+
+.cert-list {
+  padding-left: 16px;
+  font-size: 14px;
+  color: #334155;
+}
+
+.edit-profile-button {
+  text-align: right;
+  margin-bottom: 16px;
+}
+
+.edit-profile-button a {
+  display: inline-block;
+  background: #10b981;
+  color: #fff;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.edit-profile-button a:hover {
+  background: #0e9e6f;
+}
+
+.rating-number {
+  font-size: 13px;
+  color: #6b7280;
+  margin-left: 6px;
+}
+
+.empty-block {
+  padding: 12px;
+  background: #fef3c7;
+  border: 1px dashed #fbbf24;
+  border-radius: 8px;
+  color: #78350f;
+  font-size: 14px;
+}
+
+.edit-suggestion {
+  color: #0f766e;
+  font-weight: 500;
+  margin-left: 6px;
+  text-decoration: underline;
+}

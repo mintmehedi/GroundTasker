@@ -15,6 +15,7 @@ sample_tasks = [
         'budget': 100,
         'preferred_date': 'Before Fri, 11 Apr',
         'preferred_time': 'Midday',
+        'reviewed': False,
     },
     {
         'id': 2,
@@ -25,6 +26,7 @@ sample_tasks = [
         'budget': 150,
         'preferred_date': 'On Mon, 15 Apr',
         'preferred_time': 'Morning',
+        'reviewed': True,
     },
     {
         'id': 3,
@@ -35,6 +37,7 @@ sample_tasks = [
         'budget': 50,
         'preferred_date': 'Flexible',
         'preferred_time': 'Anytime',
+        'reviewed': False,
     },
     {
         'id': 4,
@@ -45,6 +48,7 @@ sample_tasks = [
         'budget': 80,
         'preferred_date': 'Before Sun, 14 Apr',
         'preferred_time': 'Afternoon',
+        'reviewed': True,
     },
     {
         'id': 5,
@@ -55,6 +59,7 @@ sample_tasks = [
         'budget': 30,
         'preferred_date': 'On Sat, 13 Apr',
         'preferred_time': 'Morning',
+        'reviewed': False,
     },
     # ... (Add more if needed)
 ]
@@ -103,7 +108,6 @@ def job_detail(request, task_id):
     })
 
 # BACKEND note:
-# Later, replace this with:
 # from .models import Task
 # task = get_object_or_404(Task, id=task_id)
 
@@ -118,14 +122,21 @@ def manage_tasks(request):
     ]
     engaged_offers = [
         {'task': sample_tasks[0], 'amount': 100, 'message': "Booked in", 'status': 'accepted'},
+        {'task': sample_tasks[2], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'pending'},
     ]
     bookmarked_tasks = [sample_tasks[2], sample_tasks[4]]
+
+    completed_tasks = [
+        {'task': sample_tasks[0], 'amount': 100, 'message': "Completed successfully", 'status': 'completed'},
+        {'task': sample_tasks[1], 'amount': 90, 'message': "Completed successfully", 'status': 'completed'},
+    ]
 
     return render(request, 'manage_tasks.html', {
         'posted_tasks': posted_tasks,
         'applied_offers': applied_offers,
         'engaged_offers': engaged_offers,
         'bookmarked_tasks': bookmarked_tasks,
+        'completed_tasks': completed_tasks, 
     })
 
 
@@ -136,10 +147,11 @@ applied_offers = [
     {'task': sample_tasks[3], 'amount': 75, 'message': "Available Sunday", 'status': 'rejected'},
 ]
 engaged_offers = [
-    {'task': sample_tasks[0], 'amount': 100, 'message': "Booked in", 'status': 'accepted'},
-    {'task': sample_tasks[1], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'pending'},
+    {'id': 1, 'task': sample_tasks[0], 'amount': 100, 'message': "Booked in", 'status': 'accepted'},
+    {'id': 2, 'task': sample_tasks[1], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'accepted'},
 ]
-bookmarked_tasks = [sample_tasks[2], sample_tasks[4]]  # Just simulate a couple
+
+bookmarked_tasks = [sample_tasks[0], sample_tasks[2]]  # Just simulate a couple
 
 # -------------------- Offer Management View -------------------- #
 def make_offer_view(request, task_id):

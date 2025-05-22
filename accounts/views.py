@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 from django.views.generic import TemplateView, CreateView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.forms import UserCreationForm
@@ -77,14 +79,70 @@ def auspost_proxy(request):
 
 
 # -------------------- View Profile -------------------- #
+from django.shortcuts import redirect
+
 @login_required
-def view_profile(request):
+def edit_profile(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    
+
     if request.method == 'POST':
         profile.bio = request.POST.get('bio')
         profile.skills = request.POST.get('skills')
         profile.location = request.POST.get('location')
         profile.save()
-    
-    return render(request, 'view_profile.html', {'user': request.user, 'profile': profile})
+        return redirect('public_profile', username=request.user.username)  
+
+    return render(request, 'edit_profile.html', {
+        'user': request.user,
+        'profile': profile
+    })
+
+
+# -------------------- Public Profile -------------------- #
+def public_profile_view(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = getattr(user, 'profile', None)
+
+
+    return render(request, 'public_profile.html', {
+        'user_profile': user,
+        'profile': profile,
+    })
+
+
+# -------------------- Change Email -------------------- #
+@login_required
+def change_email(request):
+    return render(request, 'change_email.html')
+
+# -------------------- Change Password -------------------- #
+@login_required
+def change_password(request):
+    return render(request, 'change_password.html')
+
+
+# -------------------- Dashboard -------------------- #
+@login_required
+def dashboard(request):
+    stats = {
+        'completed_jobs': 25,
+        'avg_rating': 4.8,
+        'total_feedback': 35,
+        'total_earnings': 24450.00,
+    }
+
+    completed_jobs = [
+        {'title': 'Cleaning Kitchen', 'date': 'May 10, 2025', 'client': 'Jane Smith', 'amount': '$120.00', 'rating': 4.9},
+        {'title': 'Weeding my garden', 'date': 'May 15, 2025', 'client': 'Mark Liu', 'amount': '$250.00', 'rating': 4.8},
+    ]
+
+    reviews = [
+        {'client': 'Mark Liu', 'rating': 4.8, 'comment': 'I’m very satisfied with the work......'},
+        {'client': 'Jane Smith', 'rating': 4.9, 'comment': 'I’m very satisfied with the work......'},
+    ]
+
+    return render(request, 'dashboard.html', {
+        'stats': stats,
+        'completed_jobs': completed_jobs,
+        'reviews': reviews,
+    })

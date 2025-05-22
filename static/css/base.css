@@ -1,3 +1,13 @@
+body {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+body.fade-in {
+  opacity: 1;
+  transform: scale(1);
+}
+
 a {
   text-decoration: none;
   color: inherit;
@@ -114,6 +124,13 @@ a {
 }
 
 .dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+
+  /* existing styles */
   position: absolute;
   right: 0;
   top: 42px;
@@ -121,17 +138,25 @@ a {
   border: 1px solid #ddd;
   border-radius: 10px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  display: none;
   flex-direction: column;
   padding: 12px;
   width: 220px;
   z-index: 100;
   font-size: 14px;
-}
-
-.dropdown-menu.show {
   display: flex;
 }
+
+
+
+.dropdown-menu.show {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  transition-delay: 0s;
+  pointer-events: auto;
+}
+
+
 
 .dropdown-menu a {
   padding: 8px 10px;
@@ -155,16 +180,37 @@ a {
 }
 
 .sub-options {
-  margin-top: 4px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease,
+    transform 0.3s ease;
   margin-left: 12px;
   padding-left: 8px;
-  display: none;
-  flex-direction: column;
   border-left: 2px solid #facc15;
+  display: flex;
+  flex-direction: column;
 }
+
+.sub-options.visible {
+  max-height: 200px; /* enough room for 2 items */
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+
 
 .sub-options.show {
   display: flex;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .login-link {
@@ -174,3 +220,4 @@ a {
   background: #fcd34d;
   color: #1f2937;
 }
+

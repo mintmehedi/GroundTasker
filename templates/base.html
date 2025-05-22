@@ -31,13 +31,14 @@
         <div class="profile-dropdown">
           <div class="profile-icon" id="profileToggle">👤</div>
           <div class="dropdown-menu" id="profileMenu">
-            <a href="{% url 'view_profile' %}">👤 View Profile</a>
+            <a href="{% url 'public_profile' request.user.username %}">👤 View Profile</a>
             <a href="{% url 'manage_tasks' %}">🧾 Manage Tasks</a>
+            <a href="{% url 'dashboard' %}">📋 Dashboard</a>
             <div class="dropdown-sub">
               <a href="#" class="settings-toggle">⚙️ Settings ▾</a>
               <div class="sub-options">
-                <a href="#">✉️ Change Email</a>
-                <a href="#">🔑 Change Password</a>
+                <a href="{% url 'change_email' %}">✉️ Change Email</a>
+                <a href="{% url 'change_password' %}">🔑 Change Password</a>
               </div>
             </div>
             <a href="{% url 'logout_confirm' %}">🚪 Logout</a>
@@ -63,29 +64,87 @@
   </footer>
 
   <script>
-    const profileToggle = document.getElementById('profileToggle');
-    const profileMenu = document.getElementById('profileMenu');
-    const settingsToggle = document.querySelector('.settings-toggle');
-    const subOptions = document.querySelector('.sub-options');
+  const profileToggle = document.getElementById('profileToggle');
+  const profileMenu = document.getElementById('profileMenu');
+  const settingsToggle = document.querySelector('.settings-toggle');
+  const subOptions = document.querySelector('.sub-options');
 
-    profileToggle?.addEventListener('click', () => {
-      profileMenu.classList.toggle('show');
-    });
+  profileToggle?.addEventListener('click', () => {
+    const isVisible = profileMenu.classList.contains('visible');
 
-    settingsToggle?.addEventListener('click', (e) => {
-      e.preventDefault();
-      subOptions.classList.toggle('show');
-    });
+    if (isVisible) {
+      profileMenu.classList.remove('visible');
+      profileMenu.style.opacity = '0';
+      profileMenu.style.transform = 'translateY(-10px)';
+      profileMenu.style.pointerEvents = 'none';
+      profileMenu.style.visibility = 'hidden';
+    } else {
+      profileMenu.classList.add('visible');
+      profileMenu.style.opacity = '1';
+      profileMenu.style.transform = 'translateY(0)';
+      profileMenu.style.pointerEvents = 'auto';
+      profileMenu.style.visibility = 'visible';
+    }
+  });
 
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.profile-dropdown')) {
-        profileMenu?.classList.remove('show');
-        subOptions?.classList.remove('show');
+  settingsToggle?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const isShown = subOptions.classList.contains('visible');
+
+    if (isShown) {
+      subOptions.classList.remove('visible');
+      subOptions.style.opacity = '0';
+      subOptions.style.transform = 'translateY(-4px)';
+      subOptions.style.pointerEvents = 'none';
+      subOptions.style.visibility = 'hidden';
+    } else {
+      subOptions.classList.add('visible');
+      subOptions.style.opacity = '1';
+      subOptions.style.transform = 'translateY(0)';
+      subOptions.style.pointerEvents = 'auto';
+      subOptions.style.visibility = 'visible';
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.profile-dropdown')) {
+      profileMenu?.classList.remove('visible');
+      profileMenu.style.opacity = '0';
+      profileMenu.style.transform = 'translateY(-10px)';
+      profileMenu.style.pointerEvents = 'none';
+      profileMenu.style.visibility = 'hidden';
+
+      subOptions?.classList.remove('visible');
+      subOptions.style.opacity = '0';
+      subOptions.style.transform = 'translateY(-4px)';
+      subOptions.style.pointerEvents = 'none';
+      subOptions.style.visibility = 'hidden';
+    }
+  });
+
+    // Fade in smoothly
+  window.requestAnimationFrame(() => {
+    document.body.classList.add('fade-in');
+  });
+
+  // Smooth fade-out before navigating
+  document.querySelectorAll('a[href]:not([href^=\"#\"]):not([target=\"_blank\"])').forEach(link => {
+    link.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+      if (!href.startsWith('http')) {
+        e.preventDefault();
+        document.body.classList.remove('fade-in');
+        document.body.style.transition = 'opacity 0.2s ease-in-out';
+        document.body.style.opacity = '0';
+        setTimeout(() => {
+          window.location.href = href;
+        }, 200); // keep short (200ms is snappier)
       }
     });
-  </script>
-
-  {% block extra_js %}{% endblock %}
+  });
+</script>
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>
