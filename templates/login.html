@@ -13,7 +13,7 @@
 
   <!-- Logo -->
   <div class="auth-logo-wrapper">
-    <a href="/" class="auth-logo">GroundTasker</a>
+    <a href="{% url 'home' %}" class="auth-logo">GroundTasker</a>
   </div>
 
   <!-- Login Box -->
@@ -37,7 +37,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-login">Sign In</button>
+        <a href="{% url 'home' %}"><button type="button" class="btn-login">Sign In</button></a>
       </form>
 
       <div class="small-text">

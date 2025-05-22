@@ -15,6 +15,7 @@ from .forms import ProfileForm
 from .models import Profile
 
 
+
 # -------------------- Main Views -------------------- #
 
 # Homepage View
@@ -101,7 +102,8 @@ def edit_profile(request):
 # -------------------- Public Profile -------------------- #
 def public_profile_view(request, username):
     user = get_object_or_404(User, username=username)
-    profile = getattr(user, 'profile', None)
+    # profile = getattr(user, 'profile', None)
+    profile, created = Profile.objects.get_or_create(user=user)
 
 
     return render(request, 'public_profile.html', {

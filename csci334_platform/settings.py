@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure-f!s9v6r!maijr2f7!^p&za-nf5ec@0=z($=jdi2i84lkvla-!@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'effd-2403-4800-259c-2601-514a-d8f-d3c7-366b.ngrok-free.app',
+]
+
 
 
 # Application definition
@@ -131,3 +136,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 LOGOUT_REDIRECT_URL = 'home'
+
+LOGIN_URL = '/login/'
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://effd-2403-4800-259c-2601-514a-d8f-d3c7-366b.ngrok-free.app'
+]

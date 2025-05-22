@@ -27,11 +27,11 @@
         <a href="{% url 'notifications' %}">Notifications</a>
         <a href="{% url 'messages' %}">Messages</a>
 
-        {% if request.user.is_authenticated %}
+       {% if user.is_authenticated %}
         <div class="profile-dropdown">
           <div class="profile-icon" id="profileToggle">👤</div>
           <div class="dropdown-menu" id="profileMenu">
-            <a href="{% url 'public_profile' request.user.username %}">👤 View Profile</a>
+            <a href="{% url 'public_profile' user.username %}">👤 View Profile</a>
             <a href="{% url 'manage_tasks' %}">🧾 Manage Tasks</a>
             <a href="{% url 'dashboard' %}">📋 Dashboard</a>
             <div class="dropdown-sub">
@@ -145,6 +145,5 @@
   });
 </script>
 {% block extra_js %}{% endblock %}
-
 </body>
 </html>
