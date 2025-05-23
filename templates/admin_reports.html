@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reports & Statistics</title>
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+</head>
+<body>
+
+<!-- Top-left logo -->
+<div style="position: absolute; top: 24px; left: 32px;">
+  <a href="{% url 'admin_dashboard' %}" style="font-size: 20px; font-weight: 600; text-decoration: none; color: #2c3e50;">
+    Ground<span style="color: #4CAF50;">Tasker</span>
+  </a>
+</div>
+
+<div class="container py-5">
+  <h1 class="admin-title">📊 Reports & Statistics</h1>
+
+  <div class="admin-section">
+    <div class="admin-card"><strong>Total Users:</strong><br>{{ stats.total_users }}</div>
+    <div class="admin-card"><strong>Total Tasks:</strong><br>{{ stats.total_tasks }}</div>
+    <div class="admin-card"><strong>Tickets Open:</strong><br>{{ stats.tickets_open }}</div>
+    <div class="admin-card"><strong>Tickets Closed:</strong><br>{{ stats.tickets_closed }}</div>
+    <div class="admin-card"><strong>Total Revenue:</strong><br>${{ stats.total_revenue }}</div>
+  </div>
+</div>
+
+<!-- Chart canvas below cards -->
+<div class="chart-container">
+  <canvas id="statsChart"></canvas>
+</div>
+
+
+<!-- Back button -->
+<div style="text-align: center; margin-top: 30px;">
+  <a class="back-link" href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
+</div>
+
+<!-- Chart.js script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('statsChart').getContext('2d');
+  const statsChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Users', 'Tasks', 'Open Tickets', 'Closed Tickets', 'Revenue'],
+      datasets: [{
+        label: 'Platform Stats',
+        data: [
+          {{ stats.total_users }},
+          {{ stats.total_tasks }},
+          {{ stats.tickets_open }},
+          {{ stats.tickets_closed }},
+          {{ stats.total_revenue }}
+        ],
+        backgroundColor: [
+          '#4CAF50', '#2196F3', '#f44336', '#9C27B0', '#FFC107'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

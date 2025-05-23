@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'accounts',
     'tasks', 
     'core',
+    'adminpanel',
 ]
 
 MIDDLEWARE = [
@@ -142,3 +143,6 @@ LOGIN_URL = '/login/'
 CSRF_TRUSTED_ORIGINS = [
     'https://effd-2403-4800-259c-2601-514a-d8f-d3c7-366b.ngrok-free.app'
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
