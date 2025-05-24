@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 {% endblock %}
 
 {% block content %}
@@ -10,25 +11,57 @@
   <div class="notifications-header">
     <h2>🔔 Notifications</h2>
     <div class="filter-options">
-      <button class="filter active">All</button>
-      <button class="filter">Tasks</button>
-      <button class="filter">Offers</button>
-      <button class="filter">Messages</button>
+      <button class="filter active" data-filter="all">All</button>
+      <button class="filter" data-filter="tasks">Tasks</button>
+      <button class="filter" data-filter="offers">Offers</button>
+      <button class="filter" data-filter="messages">Messages</button>
+      <button class="filter" data-filter="support">Support</button>
     </div>
   </div>
 
   <div class="notifications-scroll">
-    {% for notification in notifications %}
-    <div class="notification-row {{ notification.status|default:'' }}">
-      <div class="notif-icon">📩</div>
+    {% for reply in support_replies %}
+    <div class="notification-row support" data-type="support">
+      <div class="notif-icon">🛠️</div>
       <div class="notif-text">
-        <p><strong>{{ notification.sender }}</strong> {{ notification.message }}</p>
-        <span class="notif-meta">{{ notification.timestamp }}</span>
+        <p><strong>GroundTasker Support</strong> replied to your ticket <span class="text-muted">#{{ reply.ticket.id }}</span></p>
+        <p class="mb-1">{{ reply.message }}</p>
+        {% if reply.attachment %}
+          <a href="{{ reply.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm mb-2">📎 Download Attachment</a>
+        {% endif %}
+        <div><span class="notif-meta">{{ reply.created_at|timesince }} ago</span></div>
       </div>
     </div>
     {% empty %}
-    <p>No notifications to show.</p>
+    <p>No support replies yet.</p>
     {% endfor %}
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const filters = document.querySelectorAll('.filter');
+    const rows = document.querySelectorAll('.notification-row');
+
+    filters.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filters.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.getAttribute('data-filter');
+
+        rows.forEach(row => {
+          const type = row.getAttribute('data-type');
+          if (filter === 'all' || type === filter) {
+            row.style.display = 'flex';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>
 {% endblock %}

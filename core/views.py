@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from accounts.models import Profile 
 from tasks.views import engaged_offers  
 from django.shortcuts import render, redirect
-from adminpanel.models import Ticket
+from adminpanel.models import Ticket, TicketReply
 
 def messages_view(request):
     selected_task_id = request.GET.get('task_id')
@@ -71,3 +71,11 @@ def support_view(request):
 
     return render(request, 'support.html')
 
+@login_required
+def notifications_view(request):
+    user_tickets = Ticket.objects.filter(user=request.user)
+    support_replies = TicketReply.objects.filter(ticket__in=user_tickets).order_by('-created_at')
+
+    return render(request, 'notifications.html', {
+        'support_replies': support_replies
+    })

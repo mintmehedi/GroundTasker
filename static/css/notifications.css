@@ -32,7 +32,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  transition: background 0.2s;
+  transition: none;
 }
 
 .filter.active,

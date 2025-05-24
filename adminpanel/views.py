@@ -7,6 +7,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
 from .models import Ticket
 from django.db.models import Q
+from .models import Ticket, TicketReply
+from django.core.files.uploadedfile import UploadedFile
 
 @staff_member_required
 def admin_dashboard(request):
@@ -64,3 +66,30 @@ def download_attachment(request, ticket_id):
 
     return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=os.path.basename(file_path))
 
+
+
+@staff_member_required
+def admin_ticket_detail(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+
+    if request.method == "POST":
+        if request.POST.get("action") == "close" and ticket.status == "open":
+            ticket.status = "closed"
+            ticket.save()
+            return redirect('admin_ticket_detail', ticket_id=ticket.id)
+
+        # ✅ Admin reply handling
+        if request.POST.get("action") == "reply":
+            message = request.POST.get("message", "")
+            attachment = request.FILES.get("attachment")
+            if message:
+                TicketReply.objects.create(
+                    ticket=ticket,
+                    message=message,
+                    attachment=attachment
+                )
+
+    return render(request, 'admin_ticket_detail.html', {
+        'ticket': ticket,
+        'replies': TicketReply.objects.filter(ticket=ticket).order_by('created_at')
+    })
