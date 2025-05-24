@@ -135,3 +135,71 @@
   margin-left: 6px;
   text-decoration: underline;
 }
+
+.cert-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.cert-tag {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  border: 1px solid #bae6fd;
+}
+
+.posted-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 0;
+}
+
+.task-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  text-decoration: none;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+
+.task-card:hover {
+  background-color: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.task-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.task-title {
+  font-weight: 600;
+  font-size: 14.5px;
+  margin-bottom: 1px;
+}
+
+.task-date {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.task-budget {
+  font-weight: 600;
+  font-size: 14px;
+  color: #047857;
+  white-space: nowrap;
+}

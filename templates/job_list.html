@@ -8,53 +8,26 @@
 
 {% block content %}
 <div class="job-list-wrapper">
-  <!-- Filter + Search Section -->
-  <div class="filter-bar-container">
-    <div class="filter-bar">
-      <div class="search-wrapper">
-        <i class="bi bi-search"></i>
-        <input type="text" class="search-input" id="searchInput" placeholder="Search for a job or location...">
-      </div>
-
-    <div class="filter-group">
-        <select class="filter-select" id="locationFilter" name="location">
-            <option value="">Location</option>
-            {% for loc in locations %}
-                <option>{{ loc|default:''|escape }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-
-      <select class="filter-select" id="categoryFilter">
-        <option value="">Category</option>
-        <option>Cleaning</option>
-        <option>Gardening</option>
-        <option>Repairs</option>
-        <option>Car Detailing</option>
-        <option>Moving</option>
-        <option>Delivery</option>
-        <option>Pet Care</option>
-        <option>Personal Assistant</option>
-        <option>Handyman</option>
+  <form method="get" action="{% url 'job_list' %}">
+    <div class="enhanced-filter">
+      <input type="text" name="title" placeholder="🔍 Job Title" value="{{ request.GET.title }}">
+      <input type="text" name="location" placeholder="📍 Location" value="{{ request.GET.location }}">
+      <select name="category">
+        <option value="">🧩 No Category Selected</option>
+        {% for c in categories %}
+          <option value="{{ c }}" {% if request.GET.category == c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
       </select>
-
-      <select class="filter-select" id="budgetFilter">
-        <option value="">Budget</option>
-        <option value="under-100">Under $100</option>
-        <option value="100-200">$100 - $200</option>
-        <option value="200+">$200+</option>
-      </select>
+      <button type="submit">Search</button>
     </div>
-  </div>
+  </form>
 
-  <!-- Job List -->
   <div class="job-card-list" id="jobCardList">
     {% for task in tasks %}
-    <a href="{% url 'job_detail' task.id %}" class="job-card" 
-       data-title="{{ task.title|lower }}" 
-       data-location="{{ task.location|lower }}" 
-       data-category="{{ task.category|lower }}" 
+    <a href="{% url 'job_detail' task.id %}" class="job-card"
+       data-title="{{ task.title|lower }}"
+       data-location="{{ task.location|lower }}"
+       data-category="{{ task.category|default:''|lower }}"
        data-budget="{{ task.budget }}">
 
       <div class="job-card-header">
@@ -62,57 +35,15 @@
         <span class="budget-badge">${{ task.budget }}</span>
       </div>
       <p class="job-location">📍 {{ task.location }}</p>
-      <p class="job-meta">🗓️ {{ task.preferred_date }} &nbsp;&nbsp; ⏰ {{ task.preferred_time }}</p>
+      <p class="job-meta">
+        🗓️ {% if task.due_date %}{{ task.due_date }}{% else %}Flexible{% endif %}
+        &nbsp;&nbsp; ⏰ {{ task.get_due_type_display }}
+      </p>
       <p class="job-description">{{ task.description|truncatechars:100 }}</p>
     </a>
+    {% empty %}
+    <p style="text-align: center; color: #6b7280; font-size: 16px; margin-top: 40px;">🚫 No jobs found. Try adjusting your filters.</p>
     {% endfor %}
-    <p id="noResultsMessage" style="display: none; text-align: center; color: #6b7280; font-size: 16px; margin-top: 40px;">🚫 No jobs found. Try adjusting your filters.</p>
   </div>
 </div>
-
-<script>
-  const searchInput = document.getElementById('searchInput');
-  const locationFilter = document.getElementById('locationFilter');
-  const categoryFilter = document.getElementById('categoryFilter');
-  const budgetFilter = document.getElementById('budgetFilter');
-  const jobCards = document.querySelectorAll('.job-card');
-  const noResultsMessage = document.getElementById('noResultsMessage');
-
-  function filterJobs() {
-    const searchText = searchInput.value.toLowerCase();
-    const locationValue = locationFilter.value.toLowerCase();
-    const categoryValue = categoryFilter.value.toLowerCase();
-    const budgetValue = budgetFilter.value;
-
-    let visibleCount = 0;
-
-    jobCards.forEach(card => {
-      const title = card.dataset.title;
-      const location = card.dataset.location;
-      const category = card.dataset.category;
-      const budget = parseFloat(card.dataset.budget);
-
-      let matchesSearch = title.includes(searchText) || location.includes(searchText);
-      let matchesLocation = !locationValue || location.includes(locationValue);
-      let matchesCategory = !categoryValue || category === categoryValue;
-
-      let matchesBudget = true;
-      if (budgetValue === 'under-100') matchesBudget = budget < 100;
-      else if (budgetValue === '100-200') matchesBudget = budget >= 100 && budget <= 200;
-      else if (budgetValue === '200+') matchesBudget = budget > 200;
-
-      const shouldShow = matchesSearch && matchesLocation && matchesCategory && matchesBudget;
-
-      card.style.display = shouldShow ? '' : 'none';
-      if (shouldShow) visibleCount++;
-    });
-
-    noResultsMessage.style.display = visibleCount === 0 ? 'block' : 'none';
-  }
-
-  searchInput.addEventListener('input', filterJobs);
-  locationFilter.addEventListener('change', filterJobs);
-  categoryFilter.addEventListener('change', filterJobs);
-  budgetFilter.addEventListener('change', filterJobs);
-</script>
 {% endblock %}

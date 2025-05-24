@@ -15,16 +15,25 @@
         <h1 class="job-title">{{ task.title }}</h1>
         <div class="job-info">
           <p><strong>📍 Location:</strong> {{ task.location }}</p>
-          <p><strong>🗓️ Preferred Date:</strong> {{ task.preferred_date }}</p>
-          <p><strong>⏰ Preferred Time:</strong> {{ task.preferred_time }}</p>
-          <p><strong>👤 Posted by:</strong> John Doe</p>
+          <p><strong>🗓️ Preferred Date:</strong> {{ task.due_date|default:"Flexible" }}</p>
+          <p><strong>⏰ Preferred Time:</strong> {{ task.get_due_type_display }}</p>
+          <p><strong>👤 Posted by:</strong>
+            <a class="text-primary text-decoration-underline" href="{% url 'public_profile' task.posted_by.username %}">
+              {{ task.posted_by.username }}
+            </a>
+          </p>
         </div>
       </div>
+
       <div class="job-header-right">
         <div class="action-buttons">
-          <button class="bookmark-btn" id="bookmarkBtn" title="Bookmark">
-            <i class="bi bi-bookmark" id="bookmarkIcon"></i>
-          </button>
+          <!-- Bookmark button with form -->
+          <form method="post" id="bookmarkForm" data-task-id="{{ task.id }}">
+            {% csrf_token %}
+            <button type="button" class="bookmark-btn" id="bookmarkBtn" title="Bookmark">
+              <i class="bi {% if user in task.bookmarked_by.all %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}" id="bookmarkIcon"></i>
+            </button>
+          </form>
           <a href="#" class="report-link" id="openReport">🚩 Report Job</a>
         </div>
         <div class="budget-highlight">
@@ -51,7 +60,7 @@
 
     <div class="job-attachment">
       <h4>📎 Attachments</h4>
-      <p class="note">Attachments feature coming soon. This will allow users to upload images or documents related to the task.</p>
+      <p class="note">Attachments feature coming soon.</p>
       <input type="file" disabled class="upload-input">
     </div>
   </div>
@@ -77,23 +86,40 @@
   </div>
 </div>
 
-<!-- Report Confirmation Toast -->
 <div class="report-thanks" id="reportThanks">
   ✅ Thanks for reporting. We'll review this job shortly!
 </div>
 
 <script>
-  // Toggle Bookmark
+  // Bookmark toggle logic
   const bookmarkBtn = document.getElementById('bookmarkBtn');
   const bookmarkIcon = document.getElementById('bookmarkIcon');
-  let bookmarked = false;
+  const taskId = document.getElementById('bookmarkForm').getAttribute('data-task-id');
 
-  bookmarkBtn.addEventListener('click', () => {
-    bookmarked = !bookmarked;
-    bookmarkIcon.className = bookmarked ? 'bi bi-bookmark-fill' : 'bi bi-bookmark';
+  bookmarkBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    fetch(`/tasks/jobs/bookmark/${taskId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'added') {
+        bookmarkIcon.classList.remove('bi-bookmark');
+        bookmarkIcon.classList.add('bi-bookmark-fill');
+      } else {
+        bookmarkIcon.classList.remove('bi-bookmark-fill');
+        bookmarkIcon.classList.add('bi-bookmark');
+      }
+    })
+    .catch(error => console.error('Bookmark toggle failed:', error));
   });
 
-  // Report Modal Controls
+  // Report modal logic
   const openReport = document.getElementById('openReport');
   const reportModal = document.getElementById('reportModal');
   const closeReport = document.getElementById('closeReport');

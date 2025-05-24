@@ -13,23 +13,26 @@
     <div><strong>{{ task.title }}</strong></div>
     <div>📍 {{ task.location }}</div>
     <div>💰 ${{ task.budget }}</div>
-    <div>📅 {{ task.preferred_date }} at {{ task.preferred_time }}</div>
+    <div>📅 {{ task.due_date|default:"Flexible" }} at {{ task.get_due_type_display }}</div>
   </div>
 
   <!-- Offer Form -->
   <div class="offer-form-box">
-    <h2>🤝 Make an Offer</h2>
-    <form method="post" enctype="multipart/form-data">
+    <h2>{% if offer %}✏️ Edit Your Offer{% else %}🤝 Make an Offer{% endif %}</h2>
+
+    <form method="post" enctype="multipart/form-data" action="">
       {% csrf_token %}
 
       <label for="amount">💰 Your Offer Amount</label>
-      <input type="number" id="amount" name="amount" min="1" placeholder="e.g. 90" required>
+      <input type="number" id="amount" name="amount" min="1" placeholder="e.g. 90" required
+             value="{{ offer.amount|default_if_none:'' }}">
 
       <label for="message">✍️ Message to the Client</label>
-      <textarea id="message" name="message" rows="5" placeholder="Describe your experience or timing for this task..."></textarea>
+      <textarea id="message" name="message" rows="5" placeholder="Describe your experience or timing for this task...">{{ offer.message|default_if_none:'' }}</textarea>
 
       <label for="availability">📆 Your Availability</label>
-      <input type="text" id="availability" name="availability" placeholder="e.g. Tomorrow afternoon, Weekends only">
+      <input type="text" id="availability" name="availability" placeholder="e.g. Tomorrow afternoon"
+             value="{{ offer.availability|default_if_none:'' }}">
 
       <label for="attachment">📎 Attachment (optional)</label>
       <input type="file" id="attachment" name="attachment" accept="image/*,application/pdf">
@@ -38,7 +41,7 @@
         ⚠️ Your offer is not final until accepted. Be professional and respectful.
       </div>
 
-      <button type="submit">Submit Offer</button>
+      <button type="submit">{% if offer %}Update Offer{% else %}Submit Offer{% endif %}</button>
     </form>
   </div>
 </div>

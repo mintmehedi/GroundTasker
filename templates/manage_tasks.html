@@ -15,7 +15,7 @@
     <a href="#" class="tab" data-tab="completed">🏁 Completed Tasks</a>
   </div>
 
-  <!-- Watchlist Section -->
+  <!-- Watchlist -->
   <div class="tab-panel" id="tab-watchlist" style="display: none;">
     {% if bookmarked_tasks %}
       {% for task in bookmarked_tasks %}
@@ -24,7 +24,7 @@
           <p>📍 {{ task.location }}<br>💰 ${{ task.budget }}</p>
           <div class="card-actions">
             <a href="{% url 'job_detail' task.id %}" class="btn-outline">View Details</a>
-            <button class="btn-reject">Remove</button>
+            <button class="btn-reject remove-bookmark" data-task-id="{{ task.id }}">Remove</button>
           </div>
         </div>
       {% endfor %}
@@ -33,7 +33,7 @@
     {% endif %}
   </div>
 
-  <!-- Posted Tasks Section -->
+  <!-- Posted -->
   <div class="tab-panel" id="tab-posted">
     {% if posted_tasks %}
       {% for task in posted_tasks %}
@@ -42,32 +42,55 @@
             <h3>{{ task.title }}</h3>
             <span class="task-budget">${{ task.budget }}</span>
           </div>
-          <p class="task-meta">📍 {{ task.location }}<br>📅 {{ task.preferred_date }}  ⏰ {{ task.preferred_time }}</p>
+          <p class="task-meta">📍 {{ task.location }}<br>📅 {{ task.due_date }} ⏰ {{ task.get_due_type_display }}</p>
 
           <div class="card-actions">
-            <a href="{% url 'job_detail' task.id %}" class="btn-outline>">View Details</a>
-            <a href="{% url 'post_task' %}?edit={{ task.id }}" class="btn-outline">Edit</a>
-            <button class="btn-reject">Delete</button>
+            <a href="{% url 'job_detail' task.id %}" class="btn-outline">View Details</a>
+            <a href="{% url 'edit_task' task.id %}" class="btn-outline">Edit</a>
+            <form method="post" action="{% url 'delete_task' task.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn-reject">Delete</button>
+            </form>
           </div>
 
-          {% if task.offers.all %}
-            <div class="offer-section">
-              <h5>Offers:</h5>
-              {% for offer in task.offers.all %}
-              <div class="offer-card">
-                <p><strong>{{ offer.offered_by.username }}</strong> — ${{ offer.amount }}</p>
-                <p class="offer-msg">"{{ offer.message }}"</p>
-                <p>Status: {{ offer.status|capfirst }}</p>
-                <div class="offer-actions">
-                  <button class="btn-accept">Accept</button>
-                  <button class="btn-reject">Reject</button>
+        {% if task.offers.exists %}
+          <div class="offer-section">
+            <h5>Offers:</h5>
+            {% for offer in task.offers.all %}
+              {% if offer.status != "rejected" %}
+                <div class="offer-card">
+                  <p><strong>{{ offer.offered_by.username }}</strong> — ${{ offer.amount }}</p>
+                  {% if offer.message %}
+                    <p class="offer-msg">"{{ offer.message }}"</p>
+                  {% endif %}
+                  <p>Status:
+                    <span class="badge badge-{{ offer.status }}">{{ offer.status|capfirst }}</span>
+                  </p>
+
+                  {% if offer.status == "pending" %}
+                    <div class="offer-actions">
+                      <form method="post" action="{% url 'accept_offer' offer.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-accept">Accept</button>
+                      </form>
+                      <form method="post" action="{% url 'reject_offer' offer.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-reject">Reject</button>
+                      </form>
+                    </div>
+                  {% else %}
+                    <div class="offer-actions">
+                      <button class="btn-accept" disabled>Accepted</button>
+                    </div>
+                  {% endif %}
                 </div>
-              </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <p class="no-offers">No offers yet for this task.</p>
-          {% endif %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="no-offers">No offers yet for this task.</p>
+        {% endif %}
+
         </div>
       {% endfor %}
     {% else %}
@@ -75,7 +98,7 @@
     {% endif %}
   </div>
 
-  <!-- Applied Section -->
+  <!-- Applied -->
   <div class="tab-panel" id="tab-applied" style="display: none;">
     {% if applied_offers %}
       {% for offer in applied_offers %}
@@ -85,8 +108,11 @@
           <p>Status: <span class="badge badge-{{ offer.status }}">{{ offer.status|capfirst }}</span></p>
           <p class="offer-msg">Your message: "{{ offer.message }}"</p>
           <div class="card-actions">
-            <a href="#" class="btn-outline">Edit Offer</a>
-            <button class="btn-reject">Withdraw</button>
+            <a href="{% url 'make_offer' offer.task.id %}?edit_offer={{ offer.id }}" class="btn-outline">Edit Offer</a>
+            <form method="post" action="{% url 'withdraw_offer' offer.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn-reject">Withdraw</button>
+            </form>
           </div>
         </div>
       {% endfor %}
@@ -95,67 +121,70 @@
     {% endif %}
   </div>
 
-
-<!-- Engaged Section -->
-<div class="tab-panel" id="tab-engaged" style="display: none;">
-  {% if engaged_offers %}
-    {% for offer in engaged_offers %}
-      <div class="task-card" id="engaged-task-{{ offer.task.id }}">
-        <h3>{{ offer.task.title }}</h3>
-        <p>📍 {{ offer.task.location }}<br>💰 ${{ offer.amount }}</p>
-        <p>Engaged with: <strong>{{ offer.task.username }}</strong></p>
-        <p class="offer-msg">"{{ offer.message }}"</p>
-        <div class="card-actions">
-          <button class="btn-accept" onclick="markComplete('{{ offer.id }}')">Mark Complete</button>
-          <a href="{% url 'messages' %}?task_id={{ offer.task.id }}" class="btn btn-sm btn-outline-primary">Message</a>
+  <!-- Engaged -->
+  <div class="tab-panel" id="tab-engaged" style="display: none;">
+    {% if engaged_offers %}
+      {% for offer in engaged_offers %}
+        <div class="task-card" id="engaged-task-{{ offer.task.id }}">
+          <h3>{{ offer.task.title }}</h3>
+          <p>📍 {{ offer.task.location }}<br>💰 ${{ offer.amount }}</p>
+          <p>Engaged with: <strong>{{ offer.task.posted_by.username }}</strong></p>
+          <p class="offer-msg">"{{ offer.message }}"</p>
+          <div class="card-actions row-flex">
+            <form method="post" action="{% url 'complete_offer' offer.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn-accept">Mark Complete</button>
+            </form>
+            <a href="{% url 'messages' %}?task_id={{ offer.task.id }}" class="btn btn-sm btn-outline-primary">Message</a>
+          </div>
+          <p class="completion-msg" id="completed-{{ offer.id }}" style="display: none; margin-top: 10px; color: green; font-weight: bold;">
+            ✅ Task marked as completed!
+          </p>
         </div>
-        <p class="completion-msg" id="completed-{{ offer.id }}" style="display: none; margin-top: 10px; color: green; font-weight: bold;">
-          ✅ Task marked as completed!
-        </p>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>No engaged tasks yet.</p>
-  {% endif %}
+      {% endfor %}
+    {% else %}
+      <p>No engaged tasks yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Completed -->
+  <div class="tab-panel" id="tab-completed" style="display: none;">
+    {% if completed_tasks %}
+      {% for item in completed_tasks %}
+        <div class="task-card">
+          <h3>{{ item.task.title }}</h3>
+          <p>📍 {{ item.task.location }}<br>💰 ${{ item.task.budget }}</p>
+          <p><strong>Completed with:</strong> {{ item.task.posted_by.username }}</p>
+          <div class="card-actions">
+            <a href="{% url 'job_detail' item.task.id %}" class="btn-outline">View Details</a>
+            <button class="btn-accept" onclick="toggleReviewForm('{{ item.task.id }}')">Leave Review</button>
+          </div>
+
+          <!-- Review Form -->
+          <div class="review-form" id="review-form-{{ item.task.id }}" style="display: none; margin-top: 16px;">
+            <form method="post" action="#">
+              {% csrf_token %}
+              <label>Rating:</label>
+              <div class="star-rating" data-task-id="{{ item.task.id }}">
+                {% for i in "12345"|make_list %}
+                  <span class="star" data-value="{{ forloop.counter }}">☆</span>
+                {% endfor %}
+              </div>
+              <input type="hidden" name="rating" id="rating-input-{{ item.task.id }}">
+
+              <label for="comment-{{ item.task.id }}">Feedback:</label>
+              <textarea id="comment-{{ item.task.id }}" name="comment" rows="3" placeholder="Leave your comment..."></textarea>
+
+              <button class="btn-accept" type="submit">Submit Review</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No completed tasks yet.</p>
+    {% endif %}
+  </div>
 </div>
-
-<!-- Completed Section -->
-<div class="tab-panel" id="tab-completed" style="display: none;">
-  {% if completed_tasks %}
-    {% for item in completed_tasks %}
-      <div class="task-card">
-        <h3>{{ item.task.title }}</h3>
-        <p>📍 {{ item.task.location }}<br>💰 ${{ item.task.budget }}</p>
-        <p><strong>Completed with:</strong> {{ item.task.username }}</p>
-        <div class="card-actions">
-          <a href="{% url 'job_detail' item.task.id %}" class="btn-outline">View Details</a>
-          <button class="btn-accept" onclick="toggleReviewForm('{{ item.task.id }}')">Leave Review</button>
-        </div>
-
-        <!-- Hidden review form -->
-        <div class="review-form" id="review-form-{{ item.task.id }}" style="display: none; margin-top: 16px;">
-          <form method="post" action="#">
-            <label>Rating:</label>
-            <div class="star-rating" data-task-id="{{ item.task.id }}">
-              {% for i in "12345"|make_list %}
-                <span class="star" data-value="{{ forloop.counter }}">☆</span>
-              {% endfor %}
-            </div>
-            <input type="hidden" name="rating" id="rating-input-{{ item.task.id }}">
-
-            <label for="comment-{{ item.task.id }}">Feedback:</label>
-            <textarea id="comment-{{ item.task.id }}" name="comment" rows="3" placeholder="Leave your comment..."></textarea>
-
-            <button class="btn-accept" type="submit">Submit Review</button>
-          </form>
-        </div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>No completed tasks yet.</p>
-  {% endif %}
-</div>
-
 
 <script>
   const tabs = document.querySelectorAll('.tab');
@@ -164,88 +193,68 @@
   tabs.forEach(tab => {
     tab.addEventListener('click', e => {
       e.preventDefault();
+      const target = tab.dataset.tab;
+      localStorage.setItem('activeTab', target);
+
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       panels.forEach(panel => panel.style.display = 'none');
-      const target = tab.dataset.tab;
       document.getElementById('tab-' + target).style.display = 'block';
     });
   });
 
-  // Function to mark task as complete
-  function markComplete(offerId) {
-  const button = document.querySelector(`button[onclick="markComplete('${offerId}')"]`);
-  const msg = document.getElementById(`completed-${offerId}`);
+  window.addEventListener('DOMContentLoaded', () => {
+    const activeTab = localStorage.getItem('activeTab') || 'posted';
+    document.querySelector(`.tab[data-tab="${activeTab}"]`)?.click();
+  });
 
-  if (button && msg) {
-    button.disabled = true;
-    button.textContent = 'Completed';
-    button.style.backgroundColor = '#9ca3af';
-    msg.style.display = 'block';
+  function markComplete(offerId) {
+    const msg = document.getElementById(`completed-${offerId}`);
+    const button = document.querySelector(`button[onclick="markComplete('${offerId}')"]`);
+    if (msg && button) {
+      msg.style.display = 'block';
+      button.disabled = true;
+      button.textContent = 'Completed';
+    }
   }
-}
 
   function toggleReviewForm(taskId) {
     const form = document.getElementById(`review-form-${taskId}`);
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
   }
 
-  document.querySelectorAll('.star-rating').forEach(starContainer => {
-    const stars = starContainer.querySelectorAll('.star');
-    const taskId = starContainer.dataset.taskId;
+  document.querySelectorAll('.star-rating').forEach(container => {
+    const stars = container.querySelectorAll('.star');
+    const taskId = container.dataset.taskId;
     const ratingInput = document.getElementById(`rating-input-${taskId}`);
 
     stars.forEach((star, index) => {
       star.addEventListener('mouseover', () => {
-        stars.forEach((s, i) => {
-          s.textContent = i <= index ? '★' : '☆';
-        });
+        stars.forEach((s, i) => s.textContent = i <= index ? '★' : '☆');
       });
-
-      star.addEventListener('click', () => {
-        ratingInput.value = index + 1;
-      });
-
-      starContainer.addEventListener('mouseleave', () => {
+      star.addEventListener('click', () => ratingInput.value = index + 1);
+      container.addEventListener('mouseleave', () => {
         const selected = parseInt(ratingInput.value);
-        stars.forEach((s, i) => {
-          s.textContent = i < selected ? '★' : '☆';
-        });
+        stars.forEach((s, i) => s.textContent = i < selected ? '★' : '☆');
       });
     });
   });
 
-
-  // tab animation
-  tabs.forEach(tab => {
-  tab.addEventListener('click', e => {
-    e.preventDefault();
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    panels.forEach(panel => {
-      panel.style.display = 'none';
-      panel.classList.remove('fade-in');
+  document.querySelectorAll('.remove-bookmark').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const taskId = btn.dataset.taskId;
+    fetch(`/tasks/jobs/bookmark/${taskId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      }
+    }).then(res => res.json()).then(data => {
+      if (data.status === 'removed') {
+        btn.closest('.task-card').remove();
+      }
     });
-
-    const target = tab.dataset.tab;
-    const activePanel = document.getElementById('tab-' + target);
-    activePanel.style.display = 'block';
-
-    // Trigger animation
-    void activePanel.offsetWidth; // force reflow
-    activePanel.classList.add('fade-in');
   });
 });
 
-
 </script>
 {% endblock %}
-
-<!--
-  BACKEND NOTE:
-  Later, hook the 'Mark Complete' button to a real URL like:
-  <form method="POST" action="{% url 'mark_complete' offer.id %}">
-    {% csrf_token %}
-    <button type="submit" class="btn-accept">Mark Complete</button>
-  </form>
--->

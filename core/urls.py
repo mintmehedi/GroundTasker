@@ -1,8 +1,9 @@
+# core/urls.py
 from django.urls import path
-from . import views
+from .views import MessagesView, NotificationsView, SupportView
 
 urlpatterns = [
-    path('messages/', views.messages_view, name='messages'),
-    path('notifications/', views.notifications_view, name='notifications'),
-    path('support/', views.support_view, name='support'),  # Handles both GET + POST
+    path('messages/', MessagesView.as_view(), name='messages'),
+    path('notifications/', NotificationsView.as_view(), name='notifications'),
+    path('support/', SupportView.as_view(), name='support'),
 ]

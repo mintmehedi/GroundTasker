@@ -214,3 +214,23 @@
     transform: translateY(0);
   }
 }
+
+.row-flex {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-accepted {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.badge-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 4px 8px;
+  border-radius: 6px;
+}

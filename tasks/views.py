@@ -1,165 +1,214 @@
-from django.shortcuts import render, redirect
+# tasks/views.py (updated for edit/withdraw offer support)
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from .forms import TaskForm
-from django.http import Http404
 from .models import Task, Offer
 
-# TEMPORARY SAMPLE DATA
-sample_tasks = [
-    {
-        'id': 1,
-        'title': 'Weed backyard',
-        'username': 'Mark',
-        'description': 'Remove weeds and tidy the backyard.',
-        'location': 'Parramatta, NSW',
-        'budget': 100,
-        'preferred_date': 'Before Fri, 11 Apr',
-        'preferred_time': 'Midday',
-        'reviewed': False,
-    },
-    {
-        'id': 2,
-        'title': 'Fix sink',
-        'username': 'Sarah',
-        'description': 'Leaking pipe under kitchen sink.',
-        'location': 'Wollongong, NSW',
-        'budget': 150,
-        'preferred_date': 'On Mon, 15 Apr',
-        'preferred_time': 'Morning',
-        'reviewed': True,
-    },
-    {
-        'id': 3,
-        'title': 'Dog walking',
-        'username': 'John',
-        'description': 'Walk my dog for an hour.',
-        'location': 'Sydney, NSW',
-        'budget': 50,
-        'preferred_date': 'Flexible',
-        'preferred_time': 'Anytime',
-        'reviewed': False,
-    },
-    {
-        'id': 4,
-        'title': 'Grocery shopping',
-        'username': 'Emily',
-        'description': 'Buy groceries for the week.',
-        'location': 'Bondi, NSW',
-        'budget': 80,
-        'preferred_date': 'Before Sun, 14 Apr',
-        'preferred_time': 'Afternoon',
-        'reviewed': True,
-    },
-    {
-        'id': 5,
-        'title': 'Car wash',
-        'username': 'Michael',
-        'description': 'Wash and vacuum my car.',
-        'location': 'Wollongong, NSW',
-        'budget': 30,
-        'preferred_date': 'On Sat, 13 Apr',
-        'preferred_time': 'Morning',
-        'reviewed': False,
-    },
-    # ... (Add more if needed)
-]
+class PostTaskView(LoginRequiredMixin, View):
+    def get(self, request):
+        task_id = request.GET.get('edit')
+        task = None
+        if task_id:
+            task = get_object_or_404(Task, id=task_id, posted_by=request.user)
 
-@login_required
-def post_task(request):
-    if request.method == 'POST':
-        form = TaskForm(request.POST)
-        if form.is_valid():
-            task = form.save(commit=False)
-            task.posted_by = request.user
+        categories = [
+            "Cleaning", "Gardening", "Repairs", "Car Detailing", "Moving",
+            "Delivery", "Pet Care", "Personal Assistant", "Handyman"
+        ]
+        return render(request, 'post_task.html', {
+            'categories': categories,
+            'task': task
+        })
+
+    def post(self, request):
+        task_id = request.GET.get('edit')
+        if task_id:
+            task = get_object_or_404(Task, id=task_id, posted_by=request.user)
+            task.title = request.POST.get("title")
+            task.description = request.POST.get("description")
+            task.location = request.POST.get("location")
+            task.category = request.POST.get("category")
+            task.budget = request.POST.get("budget")
+            task.due_date = request.POST.get("due_date")
+            task.due_type = request.POST.get("due_type")
             task.save()
-            return redirect('job_list')  # Redirect to job list after posting
-    else:
-        form = TaskForm()
-    
-    return render(request, 'post_task.html', {'form': form})
+        else:
+            Task.objects.create(
+                title=request.POST.get("title"),
+                description=request.POST.get("description"),
+                location=request.POST.get("location"),
+                category=request.POST.get("category"),
+                budget=request.POST.get("budget"),
+                due_date=request.POST.get("due_date"),
+                due_type=request.POST.get("due_type"),
+                posted_by=request.user
+            )
+        return redirect('job_list')
+
+class JobListView(View):
+    def get(self, request):
+        title = request.GET.get('title', '')
+        location = request.GET.get('location', '')
+        category = request.GET.get('category', '')
+
+        filters = {}
+        if title:
+            filters['title__icontains'] = title
+        if location:
+            filters['location__icontains'] = location
+        if category:
+            filters['category__icontains'] = category
+
+        tasks = Task.objects.filter(**filters)
+        locations = Task.objects.values_list('location', flat=True).distinct()
+        categories = [
+            "Cleaning", "Gardening", "Repairs", "Car Detailing", "Moving",
+            "Delivery", "Pet Care", "Personal Assistant", "Handyman"
+        ]
+
+        return render(request, 'job_list.html', {
+            'tasks': tasks,
+            'locations': locations,
+            'categories': categories,
+        })
+
+class JobDetailView(LoginRequiredMixin, View):
+    def get(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id)
+        return render(request, 'job_detail.html', {'task': task})
+
+class MakeOfferView(LoginRequiredMixin, View):
+    def get(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id)
+        offer_id = request.GET.get('edit_offer')
+        offer = None
+
+        if offer_id:
+            offer = get_object_or_404(Offer, id=offer_id, offered_by=request.user, task=task)
+
+        return render(request, 'make_offer.html', {
+            'task': task,
+            'offer': offer  # used to pre-fill the form if editing
+        })
+
+    def post(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id)
+        offer_id = request.GET.get('edit_offer')
+        amount = request.POST.get('amount')
+        message = request.POST.get('message')
+        availability = request.POST.get('availability')
+        file = request.FILES.get('attachment')
+
+        if offer_id:
+            # Editing existing offer
+            offer = get_object_or_404(Offer, id=offer_id, offered_by=request.user, task=task)
+            offer.amount = amount
+            offer.message = message
+            offer.save()
+        else:
+            # Creating new offer
+            Offer.objects.create(
+                task=task,
+                offered_by=request.user,
+                amount=amount,
+                message=message,
+                status='pending'
+            )
+
+        return redirect('manage_tasks')
+
+class ManageTasksView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        context = {
+            'posted_tasks': Task.objects.filter(posted_by=user),
+            'applied_offers': Offer.objects.filter(offered_by=user, status='pending'),
+            'engaged_offers': Offer.objects.filter(offered_by=user, status='accepted'),
+            'bookmarked_tasks': user.bookmarked_tasks.all(),
+            'completed_tasks': Offer.objects.filter(offered_by=user, status='completed'),
+            'incoming_offers': Offer.objects.filter(task__posted_by=user).exclude(status='completed')
+        }
+        return render(request, 'manage_tasks.html', context)
 
 
-def job_list(request):
-    # Use real Task model later — for now use sample_tasks
-    tasks = sample_tasks
+@method_decorator([login_required, require_POST], name='dispatch')
+class ToggleBookmarkView(View):
+    def post(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id)
+        if request.user in task.bookmarked_by.all():
+            task.bookmarked_by.remove(request.user)
+            return JsonResponse({'status': 'removed'})
+        else:
+            task.bookmarked_by.add(request.user)
+            return JsonResponse({'status': 'added'})
 
-    # Extract unique locations
-    locations = sorted(set(task['location'] for task in tasks))
+class EditTaskView(LoginRequiredMixin, View):
+    def get(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id, posted_by=request.user)
+        categories = [
+            "Cleaning", "Gardening", "Repairs", "Car Detailing", "Moving",
+            "Delivery", "Pet Care", "Personal Assistant", "Handyman"
+        ]
+        return render(request, 'post_task.html', {
+            'task': task,
+            'categories': categories
+        })
 
-    return render(request, 'job_list.html', {
-        'tasks': tasks,
-        'locations': locations  # sent to template
-    })
+    def post(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id, posted_by=request.user)
+        task.title = request.POST.get("title")
+        task.description = request.POST.get("description")
+        task.location = request.POST.get("location")
+        task.category = request.POST.get("category")
+        task.budget = request.POST.get("budget")
+        task.due_date = request.POST.get("due_date")
+        task.due_type = request.POST.get("due_type")
+        task.save()
+        return redirect('manage_tasks')
 
+class DeleteTaskView(LoginRequiredMixin, View):
+    def post(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id, posted_by=request.user)
+        task.delete()
+        return redirect('manage_tasks')
 
+class CompleteOfferView(LoginRequiredMixin, View):
+    def post(self, request, offer_id):
+        offer = get_object_or_404(Offer, id=offer_id, offered_by=request.user)
+        offer.status = 'completed'
+        offer.save()
+        return redirect('manage_tasks')
 
-def job_detail(request, task_id):
-    # TEMP: Sample tasks used for frontend development
-    task_dict = {task['id']: task for task in sample_tasks}
-
-    # Try to find the task by its ID
-    task = task_dict.get(task_id)
-    if not task:
-        # Swap with raise Http404 or redirect if real task not found
-        raise Http404("Task not found")
-
-    return render(request, 'job_detail.html', {
-        'task': task
-    })
-
-# BACKEND note:
-# from .models import Task
-# task = get_object_or_404(Task, id=task_id)
-
-### -------------------- Manage Tasks View -------------------- #
-@login_required
-def manage_tasks(request):
-    # MOCKED tab data
-    posted_tasks = sample_tasks[:3]
-    applied_offers = [
-        {'task': sample_tasks[1], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'pending'},
-        {'task': sample_tasks[3], 'amount': 75, 'message': "Available Sunday", 'status': 'rejected'},
-    ]
-    engaged_offers = [
-        {'task': sample_tasks[0], 'amount': 100, 'message': "Booked in", 'status': 'accepted'},
-        {'task': sample_tasks[2], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'pending'},
-    ]
-    bookmarked_tasks = [sample_tasks[2], sample_tasks[4]]
-
-    completed_tasks = [
-        {'task': sample_tasks[0], 'amount': 100, 'message': "Completed successfully", 'status': 'completed'},
-        {'task': sample_tasks[1], 'amount': 90, 'message': "Completed successfully", 'status': 'completed'},
-    ]
-
-    return render(request, 'manage_tasks.html', {
-        'posted_tasks': posted_tasks,
-        'applied_offers': applied_offers,
-        'engaged_offers': engaged_offers,
-        'bookmarked_tasks': bookmarked_tasks,
-        'completed_tasks': completed_tasks, 
-    })
+class WithdrawOfferView(LoginRequiredMixin, View):
+    def post(self, request, offer_id):
+        offer = get_object_or_404(Offer, id=offer_id, offered_by=request.user)
+        offer.delete()
+        return redirect('manage_tasks')
 
 
-# TEMP: Simulated posted/applied/bookmarked/engaged task structure
-posted_tasks = sample_tasks[:3]  # First 3 as posted
-applied_offers = [
-    {'task': sample_tasks[1], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'pending'},
-    {'task': sample_tasks[3], 'amount': 75, 'message': "Available Sunday", 'status': 'rejected'},
-]
-engaged_offers = [
-    {'id': 1, 'task': sample_tasks[0], 'amount': 100, 'message': "Booked in", 'status': 'accepted'},
-    {'id': 2, 'task': sample_tasks[1], 'amount': 90, 'message': "Can fix this Thursday", 'status': 'accepted'},
-]
 
-bookmarked_tasks = [sample_tasks[0], sample_tasks[2]]  # Just simulate a couple
+@method_decorator(login_required, name='dispatch')
+class AcceptOfferView(View):
+    def post(self, request, offer_id):
+        offer = get_object_or_404(Offer, id=offer_id)
+        if offer.task.posted_by == request.user:
+            offer.status = 'accepted'
+            offer.save()
+        return redirect('manage_tasks')
 
-# -------------------- Offer Management View -------------------- #
-def make_offer_view(request, task_id):
-    # Simulate fetching task from sample data
-    task_dict = {task['id']: task for task in sample_tasks}
-    task = task_dict.get(task_id)
-
-    if not task:
-        raise Http404("Task not found")
-
-    return render(request, 'make_offer.html', {'task': task})
+@method_decorator(login_required, name='dispatch')
+class RejectOfferView(View):
+    def post(self, request, offer_id):
+        offer = get_object_or_404(Offer, id=offer_id)
+        if offer.task.posted_by == request.user:
+            offer.status = 'rejected'
+            offer.save()
+        return redirect('manage_tasks')

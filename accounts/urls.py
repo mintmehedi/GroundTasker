@@ -1,3 +1,6 @@
+from django.contrib.auth.views import LogoutView
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from .views import (
@@ -20,13 +23,12 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),
     path('setup-profile/', profile_setup, name='setup_profile'),
     path('api/auspost/', auspost_proxy, name='auspost_proxy'),
-    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('logout/', LogoutView.as_view(next_page='logout_confirm'), name='logout'),
     path('logout-confirm/', LogoutConfirmView.as_view(), name='logout_confirm'),
     path('profile/', edit_profile, name='edit_profile'),
     path('profile/<str:username>/', public_profile_view, name='public_profile'),
     path('settings/change-email/', change_email, name='change_email'),
     path('settings/change-password/', change_password, name='change_password'),
     path('dashboard/', dashboard, name='dashboard'),
-
-
+    path('logout/', method_decorator(csrf_protect, name='dispatch')(LogoutView.as_view(next_page='login')), name='logout'),
 ]

@@ -37,12 +37,25 @@
           </div>
         </div>
 
-        <a href="{% url 'home' %}"><button type="button" class="btn-login">Sign In</button></a>
+        <button type="submit" class="btn-login">Sign In</button>
       </form>
 
+      {% if form.errors %}
+        <p class="text-danger mt-2">⚠️ Invalid login. Please try again.</p>
+      {% endif %}
+
+      
       <div class="small-text">
         Don’t have an account? <a href="{% url 'register' %}">Sign up</a>
       </div>
+      
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </div>
   </div>
 

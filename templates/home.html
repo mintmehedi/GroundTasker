@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}   {# ✅ This was missing! #}
+{% load static %}
 
 {% block title %}Home{% endblock %}
 
@@ -8,18 +8,19 @@
 {% endblock %}
 
 {% block content %}
-
 <section class="hero-section">
   <div class="container hero-inner">
     <div class="hero-content">
-      <p class="greeting">Good afternoon, Mark</p>
+      <p class="greeting">
+        Good afternoon{% if user.is_authenticated %}, {{ user.first_name }}{% endif %}
+      </p>
       <h1 class="headline">
         <span>Get tasks done.</span><br />
         <span class="light-text">Or earn doing what you love.</span>
       </h1>
 
-      <form class="search-box" method="get" action="#">
-        <input type="text" placeholder="What do you need done?" name="query" />
+      <form class="search-box" method="get" action="{% url 'job_list' %}">
+        <input type="text" placeholder="What do you need done?" name="title" />
         <button type="submit">
           Find doers
           <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="currentColor" viewBox="0 0 24 24">
@@ -47,28 +48,11 @@
 <section class="top-categories">
   <h2>Top Categories</h2>
   <div class="categories-grid">
-    <div class="category-card">
-      <span class="icon">🌿</span>
-      <p>Gardening</p>
-    </div>
-    <div class="category-card">
-      <span class="icon">🧹</span>
-      <p>Cleaning</p>
-    </div>
-    <div class="category-card">
-      <span class="icon">🚘</span>
-      <p>Car Detailing</p>
-    </div>
-    <div class="category-card">
-      <span class="icon">🛠️</span>
-      <p>Repairs</p>
-    </div>
-    <div class="category-card">
-      <span class="icon">🧰</span>
-      <p>Handyman</p>
-    </div>
+    <div class="category-card"><span class="icon">🌿</span><p>Gardening</p></div>
+    <div class="category-card"><span class="icon">🧹</span><p>Cleaning</p></div>
+    <div class="category-card"><span class="icon">🚘</span><p>Car Detailing</p></div>
+    <div class="category-card"><span class="icon">🛠️</span><p>Repairs</p></div>
+    <div class="category-card"><span class="icon">🧰</span><p>Handyman</p></div>
   </div>
 </section>
-
-
 {% endblock %}

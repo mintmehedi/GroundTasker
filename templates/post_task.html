@@ -14,31 +14,39 @@
     {% csrf_token %}
 
     <label for="id_title">What do you need done?</label>
-    {{ form.title }}
+    <input type="text" name="title" id="id_title" placeholder="e.g. Clean my garage" required>
 
     <label for="id_description">Task Description</label>
-    {{ form.description }}
+    <input type="text" name="description" id="id_description" placeholder="e.g. Clear all leaves and sweep" required>
 
     <label for="id_location">Location</label>
-    <input type="text" id="location-input" name="location" placeholder="e.g. Wollongong, NSW 2500">
+    <input type="text" id="location-input" name="location" placeholder="e.g. Wollongong, NSW 2500" required>
     <ul id="suggestions" class="suggestion-box"></ul>
+
+    <label for="id_category">Category</label>
+    <select name="category" class="form-select" id="id_category" required>
+      <option value="">No Category Selected</option>
+        {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+        {% endfor %}
+    </select>
 
     <label for="id_budget">Budget ($AUD)</label>
     <div class="budget-wrapper">
-        <input type="text" id="id_budget" name="budget" placeholder="💲 Enter budget">
+      <input type="text" id="id_budget" name="budget" placeholder="💲 Enter budget" inputmode="decimal" required>
     </div>
 
     <label for="id_due_date">When should it be done?</label>
     <div class="date-options">
-      <select name="due_type" id="due-type">
+      <select name="due_type" id="id_due_type" required>
         <option value="on_date">On date</option>
         <option value="before_date">Before date</option>
         <option value="flexible">I'm flexible</option>
       </select>
-      <input type="text" id="date-picker" name="due_date" placeholder="Pick a date">
+      <input type="text" id="date-picker" name="due_date" placeholder="Pick a date" required>
     </div>
 
-    <button type="submit" class="btn-submit">Next</button>
+    <button type="submit" class="btn-submit">Post</button>
   </form>
 </div>
 {% endblock %}
@@ -46,19 +54,16 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-
-  // ========== Modern calendar ==========
   flatpickr("#date-picker", {
     altInput: true,
     altFormat: "F j, Y",
     dateFormat: "Y-m-d",
     minDate: "today",
-    disableMobile: "true", // force full UI
+    disableMobile: "true",
     nextArrow: "→",
-    prevArrow: "←",
+    prevArrow: "←"
   });
 
-  // ========== AusPost API Autocomplete ==========
   const input = document.getElementById('location-input');
   const suggestionBox = document.getElementById('suggestions');
 
@@ -111,18 +116,9 @@
     }
   });
 
-  // ========== Auto-add "$" for budget ==========
   const budgetInput = document.getElementById("id_budget");
   budgetInput.addEventListener("input", () => {
-    if (budgetInput.value.startsWith("$")) {
-      budgetInput.value = budgetInput.value.replace(/^\$/, '');
-    }
+    budgetInput.value = budgetInput.value.replace(/[^\d.]/g, '');
   });
-
-  // Ensure only digits + dot (no $ typed manually)
-budgetInput.addEventListener("input", () => {
-  budgetInput.value = budgetInput.value.replace(/[^\d.]/g, '');
-});
-
 </script>
 {% endblock %}

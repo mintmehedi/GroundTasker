@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/public_profile.css' %}">
+  <link rel="stylesheet" href="{% static 'css/public_profile.css' %}?v={{ now|date:'U' }}">
 {% endblock %}
 
 {% block content %}
@@ -11,55 +11,77 @@
 
     <!-- Left Panel -->
     <div class="profile-info">
-      <div class="avatar-circle">E</div>
-      <h2 class="username">Elon Musk</h2>
-      <p class="email">occupysun@die.com</p>
+      <div class="avatar-circle">{{ user_profile.username|slice:":1"|upper }}</div>
+      <h2 class="username">{{ user_profile.username }}</h2>
+      <p class="email">{{ user_profile.email }}</p>
 
+      {% if profile.average_rating %}
       <div class="rating-stars">
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">☆</span>
-        <span class="rating-number">(4.0)</span>
+        {% for i in "12345"|make_list %}
+          <span class="star">{% if forloop.counter <= profile.average_rating|floatformat:"0" %}★{% else %}☆{% endif %}</span>
+        {% endfor %}
+        <span class="rating-number">({{ profile.average_rating }})</span>
       </div>
+      {% endif %}
     </div>
 
     <!-- Right Panel -->
     <div class="profile-details">
-
-      <!-- Edit button for owner's own view -->
+      {% if user == user_profile %}
       <div class="edit-profile-button">
         <a href="{% url 'edit_profile' %}">✍️ Edit Profile</a>
       </div>
-
+      {% endif %}
       <div class="section">
         <h3>About</h3>
-        <p>I’m Elon, a passionate cleaner and gardener based in Sydney.</p>
+        <p>{{ profile.bio|default:"No bio provided." }}</p>
       </div>
 
       <div class="section">
         <h3>Skills</h3>
         <div class="skill-tags">
-          <span class="tag">Gardening</span>
-          <span class="tag">Window Cleaning</span>
-          <span class="tag">General Repairs</span>
+          {% for skill in skills %}
+            <span class="tag">{{ skill }}</span>
+          {% endfor %}
         </div>
       </div>
 
       <div class="section">
         <h3>Location</h3>
-        <p>Sydney, NSW 2000</p>
+        <p>{{ profile.postcode|default:"N/A" }}</p>
       </div>
 
       <div class="section">
         <h3>Certifications</h3>
-        <ul class="cert-list">
-          <li><strong>Police Check</strong></li>
-          <li><strong>First Aid</strong></li>
-        </ul>
+        {% if cert_list %}
+        <div class="cert-tags">
+          {% for cert in cert_list %}
+            <span class="cert-tag">{{ cert }}</span>
+          {% endfor %}
+        </div>
+        {% else %}
+          <p>No certifications provided.</p>
+        {% endif %}
       </div>
 
+      <div class="section">
+        <h3>Tasks Posted</h3>
+        {% if posted_tasks %}
+      <div class="posted-task-list">
+        {% for task in posted_tasks %}
+          <a class="task-card" href="{% url 'job_detail' task.id %}">
+            <div class="task-info">
+              <div class="task-title">{{ task.title }}</div>
+              <div class="task-date">📅 {{ task.created_at|date:"M d, Y" }}</div>
+            </div>
+            <div class="task-budget">💰 ${{ task.budget }}</div>
+          </a>
+        {% endfor %}
+      </div>
+        {% else %}
+          <p>This user hasn’t posted any tasks yet.</p>
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>
