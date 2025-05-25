@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/subscription.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="subscription-wrapper">
+    <div class="subscription-inner">
+        <div class="subscription-card">
+            <h1 class="title">🚀 Upgrade to <span class="brand">GroundTasker Premium</span></h1>
+            <p class="subtitle">Unlock pro tools and priority access to maximize your productivity.</p>
+
+            <div class="price-box">
+                <div class="price">$9.99<span>/month</span></div>
+            </div>
+
+            <ul class="feature-list">
+                <li>✅ Dashboard</li>
+                <li>✅ Statistics</li>
+                <li>✅ Reporting</li>
+            </ul>
+
+            <form method="post" action="{% url 'subscribe' %}">
+                {% csrf_token %}
+                <button type="submit" class="subscribe-btn">Buy Now</button>
+            </form>
+            <p class="disclaimer">Dashboard access requires an active subscription.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

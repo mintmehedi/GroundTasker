@@ -16,13 +16,12 @@
       <p class="email">{{ user_profile.email }}</p>
 
       {% if profile.average_rating %}
-      <div class="rating-stars">
-        {% for i in "12345"|make_list %}
-          <span class="star">{% if forloop.counter <= profile.average_rating|floatformat:"0" %}★{% else %}☆{% endif %}</span>
-        {% endfor %}
-        <span class="rating-number">({{ profile.average_rating }})</span>
-      </div>
+        <div class="rating-stars">
+          <span class="star">{{stars}}</span>
+          <span class="rating-number">({{ profile.average_rating }})</span>
+        </div>
       {% endif %}
+
     </div>
 
     <!-- Right Panel -->

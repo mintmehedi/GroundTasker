@@ -161,8 +161,9 @@
             <a href="{% url 'job_detail' item.task.id %}" class="btn-outline">View Details</a>
             <button class="btn-accept" onclick="toggleReviewForm('{{ item.task.id }}')">Leave Review</button>
           </div>
+          <!-- Review Form -->
           <div class="review-form" id="review-form-{{ item.task.id }}" style="display: none; margin-top: 16px;">
-            <form method="post" action="#">
+            <form method="post" action="{% url 'create_review' %}">
               {% csrf_token %}
               <label>Rating:</label>
               <div class="star-rating" data-task-id="{{ item.task.id }}">
@@ -171,8 +172,11 @@
                 {% endfor %}
               </div>
               <input type="hidden" name="rating" id="rating-input-{{ item.task.id }}">
+              <input type="hidden" name="task_id" value="{{item.task.id}}">
+
               <label for="comment-{{ item.task.id }}">Feedback:</label>
               <textarea id="comment-{{ item.task.id }}" name="comment" rows="3" placeholder="Leave your comment..."></textarea>
+
               <button class="btn-accept" type="submit">Submit Review</button>
             </form>
           </div>
@@ -262,7 +266,6 @@ function toggleOffers(taskId) {
     dropdown.style.display = 'none';
   }
 }
-
 
 </script>
 {% endblock %}

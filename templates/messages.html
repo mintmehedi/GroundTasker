@@ -8,47 +8,73 @@
 {% block content %}
 <div class="message-wrapper">
   <div class="sidebar">
-    {% for convo in conversations %}
-      <div class="user {% if convo.active %}active{% endif %}" onclick="openChat('{{ convo.task_id }}')">
-        <div><strong>{{ convo.username }}</strong></div>
-        <div style="font-size: 13px; color: #555;">{{ convo.title }}</div>
-      </div>
-    {% endfor %}
+    {% if threads %}
+      {% for thread in threads %}
+        <div class="user {% if selected_thread and thread.id == selected_thread.id %}active{% endif %}" onclick="window.location.href='{% url 'messages_with_thread' thread_id=thread.id %}'" style="cursor:pointer;">
+          <div><strong>{{ thread.task.title }}</strong></div>
+          <div style="font-size: 13px; color: #555; font-weight: normal;">
+            {% for user in thread.users.all %}
+              {{ user.username }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+              No participants
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No threads have been started.</p>
+    {% endif %}
   </div>
 
   <div class="chat-panel">
-    {% for convo in conversations %}
-      <div id="chat-{{ convo.task_id }}" class="chat-box {% if convo.active %}active{% endif %}">
-        <div class="message from">Hey, I'm ready for: {{ convo.title }}</div>
-        <div class="message to">Awesome! Let's do it.</div>
+    {% if selected_thread %}
+      <div id="chat-box" class="chat-box active">
       </div>
-    {% endfor %}
-
-    <div class="message-input">
-      <input type="text" placeholder="Type a message..." />
-      <button>Send</button>
-    </div>
+      <div class="message-input">
+        <form method="POST" action="" class="d-flex w-100 align-items-center">
+          {% csrf_token %}
+          <input type="text" name="contents" placeholder="Type a message..." class="form-control me-2" />
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+      </div>
+    {% else %}
+      <p>Select a conversation on the left panel to get started.</p>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+{% if selected_thread %}
 <script>
-  function openChat(id) {
-    document.querySelectorAll('.chat-box').forEach(box => box.classList.remove('active'));
-    document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
-    document.getElementById(`chat-${id}`).classList.add('active');
-    document.querySelector(`.user[onclick*="${id}"]`).classList.add('active');
-  }
+  document.addEventListener("DOMContentLoaded", function () {
+    const threadId = "{{ selected_thread.id }}";
+    const chatBox = document.getElementById("chat-box");
+    const currentUser = "{{ request.user.username }}";
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const defaultId = '{{ selected_task_id|default:"" }}';
-    if (defaultId && document.getElementById(`chat-${defaultId}`)) {
-      openChat(defaultId);
-    } else {
-      document.querySelectorAll('.chat-box')[0]?.classList.add('active');
-      document.querySelectorAll('.user')[0]?.classList.add('active');
+    function fetchMessages() {
+      fetch(`/core/messages/${threadId}/api/`)
+        .then(response => response.json())
+        .then(data => {
+          chatBox.innerHTML = "";
+          if (data.messages.length === 0) {
+            chatBox.innerHTML = `<div class="message system">No messages yet. Start the conversation!</div>`;
+          } else {
+            data.messages.forEach(msg => {
+              const msgDiv = document.createElement("div");
+              const isFrom = msg.sender === currentUser;
+              msgDiv.className = "message " + (isFrom ? "from" : "to");
+              msgDiv.innerHTML = `<strong>${msg.sender}</strong><br>${msg.contents}`;
+              chatBox.appendChild(msgDiv);
+            });
+          }
+          chatBox.scrollTop = chatBox.scrollHeight;
+        });
     }
+
+    fetchMessages();
+    setInterval(fetchMessages, 3000);
   });
 </script>
+{% endif %}
 {% endblock %}

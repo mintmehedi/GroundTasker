@@ -11,7 +11,11 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal, InvalidOperation
-from .models import Task, Offer
+from .models import Task, Offer, Review
+from django.db.models import Avg
+from accounts.models import *
+from core.models import Notification
+from core.models import MessageThread
 
 class PostTaskView(LoginRequiredMixin, View):
     def get(self, request):
@@ -135,13 +139,14 @@ class MakeOfferView(LoginRequiredMixin, View):
             offer.message = message
             offer.save()
         else:
-            Offer.objects.create(
+            offer = Offer.objects.create(
                 task=task,
                 offered_by=request.user,
                 amount=amount,
                 message=message,
                 status='pending'
             )
+            Notification.objects.create(recipient=offer.task.posted_by ,task=offer.task,tag='tasks', message=f"A new offer has been made on your task for ${amount}.")
 
         return redirect('manage_tasks')
 
@@ -220,42 +225,90 @@ class DeleteTaskView(LoginRequiredMixin, View):
         task = get_object_or_404(Task, id=task_id, posted_by=request.user)
         task.delete()
         return redirect('manage_tasks')
+    
 class CompleteOfferView(LoginRequiredMixin, View):
     def post(self, request, offer_id):
         offer = get_object_or_404(Offer, id=offer_id)
 
-        # ✅ Allow either the client (task owner) or provider to mark as complete
         if offer.offered_by == request.user or offer.task.posted_by == request.user:
             offer.status = 'completed'
             offer.save()
+            Notification.objects.create(recipient=offer.task.posted_by ,task=offer.task,tag='tasks', message=f"Task '{offer.task} has been set as completed.")
+
+        
 
         return redirect('manage_tasks')
 
 class WithdrawOfferView(LoginRequiredMixin, View):
     def post(self, request, offer_id):
         offer = get_object_or_404(Offer, id=offer_id, offered_by=request.user)
+        Notification.objects.create(recipient=offer.task.posted_by,task=offer.task,tag='tasks',message=f"{request.user} has withdrawn their offer on post '{offer.task.title}'.")
         offer.delete()
         return redirect('manage_tasks')
-
+        
 @method_decorator(login_required, name='dispatch')
 class AcceptOfferView(View):
     def post(self, request, offer_id):
         offer = get_object_or_404(Offer, id=offer_id)
 
         if offer.task.posted_by == request.user:
-            # Accept this offer
             offer.status = 'accepted'
             offer.save()
 
-            # Reject all other offers for this task
+            thread, created = MessageThread.objects.get_or_create(task=offer.task)
+            thread.users.add(offer.task.posted_by, offer.offered_by)
+
+            Notification.objects.create(
+                recipient=offer.offered_by,
+                task=offer.task,
+                tag='offers',
+                message=f"{offer.task.posted_by} has accepted your offer on task '{offer.task.title}'."
+            )
+
             Offer.objects.filter(task=offer.task).exclude(id=offer.id).update(status='rejected')
 
         return redirect('manage_tasks')
+
+
 @method_decorator(login_required, name='dispatch')
 class RejectOfferView(View):
     def post(self, request, offer_id):
         offer = get_object_or_404(Offer, id=offer_id)
+
         if offer.task.posted_by == request.user:
+            if offer.status == 'accepted':
+                try:
+                    thread = MessageThread.objects.get(task=offer.task)
+                    thread.delete()
+                except MessageThread.DoesNotExist:
+                    pass
+
             offer.status = 'rejected'
             offer.save()
+
+            Notification.objects.create(
+                recipient=offer.offered_by,
+                task=offer.task,
+                tag='offers',
+                message=f"{offer.task.posted_by} has declined your offer on task '{offer.task.title}'."
+            )
+
+        return redirect('manage_tasks')
+    
+class CreateReview(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        task_id = request.POST.get('task_id')
+        rating = request.POST.get('rating')
+        feedback = request.POST.get('comment')
+        task = get_object_or_404(Task, id=task_id)
+        reviewee = task.posted_by
+        revieweeProfile = get_object_or_404(Profile, user=task_id)
+
+        review = Review.objects.create(reviewer=request.user,reviewee=task.posted_by,task=task,rating=rating,feedback=feedback)
+
+        reviews_qs = Review.objects.filter(reviewee=reviewee).select_related('reviewer')
+        revieweeProfile.average_rating = round(reviews_qs.aggregate(avg=Avg('rating'))['avg'] or 0, 2)
+        revieweeProfile.save()
+        Notification.objects.create(recipient=reviewee,task=task,tag='tasks',message=f"{request.user} has rated you {review.rating} stars.")
+
         return redirect('manage_tasks')

@@ -3,7 +3,8 @@ from .views import (
     PostTaskView, JobListView, JobDetailView,
     ManageTasksView, MakeOfferView, ToggleBookmarkView,
     EditTaskView, DeleteTaskView, CompleteOfferView,
-    WithdrawOfferView, AcceptOfferView, RejectOfferView
+    WithdrawOfferView, AcceptOfferView, RejectOfferView,
+    CreateReview
 )
 
 urlpatterns = [
@@ -19,4 +20,5 @@ urlpatterns = [
     path('jobs/bookmark/<int:task_id>/', ToggleBookmarkView.as_view(), name='toggle_bookmark'),
     path('task/edit/<int:task_id>/', EditTaskView.as_view(), name='edit_task'),
     path('task/delete/<int:task_id>/', DeleteTaskView.as_view(), name='delete_task'),
+    path('reviews/create/', CreateReview.as_view(), name='create_review'),
 ]

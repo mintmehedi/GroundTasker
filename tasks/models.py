@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from decimal import Decimal, InvalidOperation
+from django.contrib.auth.models import User
 
 class Task(models.Model):
     FLEX_CHOICES = [
@@ -46,3 +47,11 @@ class Offer(models.Model):
             return f"{self.offered_by.username} offered ${self.amount or '0.00'} for {self.task.title}"
         except (InvalidOperation, AttributeError, TypeError):
             return f"Offer for {self.task.title}"
+
+class Review(models.Model):
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviewer")
+    reviewee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviewee")
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="task")
+
+    rating = models.CharField(max_length=15, null=True, blank=True)
+    feedback = models.TextField(max_length=2000, null=True, blank=True)

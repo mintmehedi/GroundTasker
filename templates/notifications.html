@@ -11,30 +11,61 @@
   <div class="notifications-header">
     <h2>🔔 Notifications</h2>
     <div class="filter-options">
-      <button class="filter active" data-filter="all">All</button>
-      <button class="filter" data-filter="tasks">Tasks</button>
-      <button class="filter" data-filter="offers">Offers</button>
-      <button class="filter" data-filter="messages">Messages</button>
-      <button class="filter" data-filter="support">Support</button>
+      <button class="filter {% if not filter_tag or filter_tag == 'all' %}active{% endif %}" data-filter="all">All</button>
+      <button class="filter {% if filter_tag == 'tasks' %}active{% endif %}" data-filter="tasks">Tasks</button>
+      <button class="filter {% if filter_tag == 'offers' %}active{% endif %}" data-filter="offers">Offers</button>
+      <button class="filter {% if filter_tag == 'messages' %}active{% endif %}" data-filter="messages">Messages</button>
+      <button class="filter {% if filter_tag == 'support' %}active{% endif %}" data-filter="support">Support</button>
     </div>
   </div>
 
   <div class="notifications-scroll">
-    {% for reply in support_replies %}
-    <div class="notification-row support" data-type="support">
-      <div class="notif-icon">🛠️</div>
-      <div class="notif-text">
-        <p><strong>GroundTasker Support</strong> replied to your ticket <span class="text-muted">#{{ reply.ticket.id }}</span></p>
-        <p class="mb-1">{{ reply.message }}</p>
-        {% if reply.attachment %}
-          <a href="{{ reply.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm mb-2">📎 Download Attachment</a>
-        {% endif %}
-        <div><span class="notif-meta">{{ reply.created_at|timesince }} ago</span></div>
-      </div>
-    </div>
-    {% empty %}
-    <p>No support replies yet.</p>
-    {% endfor %}
+    {% if notifications %}
+      {% for notif in notifications %}
+        <div class="notification-row {{ notif.tag }}" data-type="{{ notif.tag }}">
+          <div class="notif-icon">
+            {% if notif.tag == 'support' %}
+              🛠️
+            {% elif notif.tag == 'tasks' %}
+              📌
+            {% elif notif.tag == 'offers' %}
+              💰
+            {% elif notif.tag == 'messages' %}
+              💬
+            {% else %}
+              🔔
+            {% endif %}
+          </div>
+          <div class="notif-text">
+            <p>
+              {% if notif.tag == 'support' and notif.ticket %}
+                <strong>GroundTasker Support</strong> replied to your ticket 
+                <a>#{{ notif.ticket.id }}</a>
+              {% elif notif.tag == 'tasks' and notif.task %}
+                <strong>Task:</strong> 
+                <a class="btn btn-link p-0" href="{{ notif.get_absolute_url }}">{{ notif.task.title }}</a>
+              {% elif notif.tag == 'offers' and notif.task %}
+                <strong>Offer update on task:</strong> 
+                <a class="btn btn-link p-0" href="{{ notif.get_absolute_url }}">{{ notif.task.title }}</a>
+              {% elif notif.tag == 'messages' %}
+                <strong>New message received</strong>
+              {% else %}
+                Notification
+              {% endif %}
+            </p>
+            <p class="mb-1">{{ notif.message }}</p>
+
+            {% if notif.tag == 'support' and notif.ticket and notif.ticket.attachment %}
+              <a href="{{ notif.ticket.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm mb-2">📎 Download Attachment</a>
+            {% endif %}
+            
+            <div><span class="notif-meta">{{ notif.created_at|timesince }} ago</span></div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No notifications found.</p>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

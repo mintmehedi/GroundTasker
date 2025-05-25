@@ -11,7 +11,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from tasks.models import *
+from .models import *
+from django.db.models import Avg
 import requests
+import math
 import json
 
 from .forms import ProfileForm
@@ -123,12 +127,23 @@ class PublicProfileView(View):
         cert_list = [c.strip() for c in profile.certifications.split(',')] if profile.certifications else []
         posted_tasks = Task.objects.filter(posted_by=user)
 
+        stars = "☆☆☆☆☆"
+
+        rating_str = profile.average_rating
+        if rating_str is not None and rating_str.lower() != 'none':
+            try:
+                rating = float(rating_str)
+                stars = "★" * int(rating) + "☆" * (5 - int(rating))
+            except (ValueError, TypeError):
+                stars = "☆☆☆☆☆"
+
         return render(request, 'public_profile.html', {
             'user_profile': user,
             'profile': profile,
             'skills': skills,
             'cert_list': cert_list,
-            'posted_tasks': posted_tasks
+            'posted_tasks': posted_tasks,
+            'stars': stars
         })
 
 # -------------------- Change Email & Password -------------------- #
@@ -146,20 +161,42 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        accepted_offers = Offer.objects.filter(offered_by=user, status='completed').select_related('task')
+        completed_jobs = [
+            {
+                'title': offer.task.title,
+                'date': offer.task.created_at.strftime('%b %d, %Y'),
+                'client': offer.task.posted_by.get_full_name() or offer.task.posted_by.username,
+                'amount': f"${offer.amount:.2f}",
+                'rating': Review.objects.filter(task=offer.task, reviewee=user).first().rating if Review.objects.filter(task=offer.task, reviewee=user).exists() else None
+            }
+            for offer in accepted_offers
+        ]
+
+        reviews_qs = Review.objects.filter(reviewee=user).select_related('reviewer')
+        reviews = [
+            {
+                'client': review.reviewer.get_full_name() or review.reviewer.username,
+                'rating': review.rating,
+                'comment': review.feedback
+            }
+            for review in reviews_qs
+        ]
+
         context['stats'] = {
-            'completed_jobs': 25,
-            'avg_rating': 4.8,
-            'total_feedback': 35,
-            'total_earnings': 24450.00,
+            'completed_jobs': accepted_offers.count(),
+            'avg_rating': round(reviews_qs.aggregate(avg=Avg('rating'))['avg'] or 0, 2),
+            'total_feedback': reviews_qs.count(),
+            'total_earnings': sum(offer.amount for offer in accepted_offers),
         }
-        context['completed_jobs'] = [
-            {'title': 'Cleaning Kitchen', 'date': 'May 10, 2025', 'client': 'Jane Smith', 'amount': '$120.00', 'rating': 4.9},
-            {'title': 'Weeding my garden', 'date': 'May 15, 2025', 'client': 'Mark Liu', 'amount': '$250.00', 'rating': 4.8},
-        ]
-        context['reviews'] = [
-            {'client': 'Mark Liu', 'rating': 4.8, 'comment': 'I’m very satisfied with the work......'},
-            {'client': 'Jane Smith', 'rating': 4.9, 'comment': 'I’m very satisfied with the work......'},
-        ]
+
+        context['completed_jobs'] = completed_jobs
+        context['reviews'] = reviews
+
+        from core.models import PremiumUser
+        context['is_premium'] = PremiumUser.objects.filter(user=user).exists()
         return context
 
 

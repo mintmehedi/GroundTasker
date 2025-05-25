@@ -7,6 +7,7 @@ from django.views.generic import TemplateView
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import Ticket, TicketReply
+from core.models import Notification
 
 
 @method_decorator(staff_member_required, name='dispatch')
@@ -51,10 +52,17 @@ class AdminTicketDetailView(View):
             message = request.POST.get("message", "")
             attachment = request.FILES.get("attachment")
             if message:
+                recipient = ticket.user
                 TicketReply.objects.create(
                     ticket=ticket,
                     message=message,
                     attachment=attachment
+                )
+                Notification.objects.create(
+                    recipient=recipient,
+                    ticket=ticket,
+                    tag='support',
+                    message=message
                 )
 
         replies = TicketReply.objects.filter(ticket=ticket).order_by('created_at')
@@ -79,8 +87,8 @@ class AdminReportsView(TemplateView):
         }
         return context
 
-
 # KEEP AS FUNCTION-BASED
+# yes sir -kw
 def download_attachment(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
