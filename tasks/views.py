@@ -150,22 +150,32 @@ class ManageTasksView(LoginRequiredMixin, View):
         user = request.user
         posted_tasks = Task.objects.filter(posted_by=user).prefetch_related('offers')
 
-        # NEW: map task.id → accepted offer object
+        # Map task.id → accepted offer object
         accepted_offers = {
             task.id: next((o for o in task.offers.all() if o.status == 'accepted'), None)
             for task in posted_tasks
         }
 
+        # Map task.id → boolean if there's any completed offer
+        has_completed_offers = {
+            task.id: task.offers.filter(status='completed').exists()
+            for task in posted_tasks
+        }
+
         context = {
             'posted_tasks': posted_tasks,
-            'accepted_offers': accepted_offers,  # <-- add this
+            'accepted_offers': accepted_offers,
+            'has_completed_offers': has_completed_offers,  # <-- added for template fix
             'applied_offers': Offer.objects.filter(offered_by=user, status='pending'),
             'engaged_offers': Offer.objects.filter(
                 Q(offered_by=user) | Q(task__posted_by=user),
                 status='accepted'
             ),
             'bookmarked_tasks': user.bookmarked_tasks.all(),
-            'completed_tasks': Offer.objects.filter(Q(offered_by=user) | Q(task__posted_by=user),status='completed'),
+            'completed_tasks': Offer.objects.filter(
+                Q(offered_by=user) | Q(task__posted_by=user),
+                status='completed'
+            ),
             'incoming_offers': Offer.objects.filter(task__posted_by=user).exclude(status='completed')
         }
         return render(request, 'manage_tasks.html', context)
