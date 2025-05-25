@@ -1,4 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.views import LogoutView as BaseLogoutView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.models import User
@@ -158,3 +161,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             {'client': 'Jane Smith', 'rating': 4.9, 'comment': 'I’m very satisfied with the work......'},
         ]
         return context
+
+
+@method_decorator(csrf_protect, name='dispatch')
+class SafeLogoutView(BaseLogoutView):
+    http_method_names = ['post']

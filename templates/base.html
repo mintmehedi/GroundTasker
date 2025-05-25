@@ -12,45 +12,44 @@
 </head>
 <body>
   <header class="main-header">
-    <div class="container header-inner">
-      <a href="{% url 'home' %}" class="logo">GroundTasker</a>
-      <nav class="main-nav">
-        <a href="{% url 'post_task' %}" class="primary-nav">Post a Task</a>
-        <a href="{% url 'job_list' %}">Browse Task</a>
-      </nav>
-      <div class="header-actions">
-        <a href="{% url 'support' %}">Help</a>
-        {% if user.is_authenticated %}
-          <a href="{% url 'notifications' %}">Notifications</a>
-          <a href="{% url 'messages' %}">Messages</a>
-          <div class="profile-dropdown">
-            <div class="profile-icon" id="profileToggle">👤</div>
-            <div class="dropdown-menu" id="profileMenu">
-              <a href="{% url 'public_profile' user.username %}">👤 View Profile</a>
-              <a href="{% url 'manage_tasks' %}">🧾 Manage Tasks</a>
-              <a href="{% url 'dashboard' %}">📋 Dashboard</a>
-              <div class="dropdown-sub">
-                <a href="#" class="settings-toggle">⚙️ Settings ▾</a>
-                <div class="sub-options">
-                  <a href="{% url 'change_email' %}">✉️ Change Email</a>
-                  <a href="{% url 'change_password' %}">🔑 Change Password</a>
-                </div>
-              </div>
-              <div class="logout-wrapper">
-                <form method="post" action="{% url 'logout' %}">
-                  {% csrf_token %}
-                  <button type="submit" class="dropdown-item-btn">🚪 Logout</button>
-                </form>
+  <div class="container header-inner">
+    <a href="{% url 'home' %}" class="logo">GroundTasker</a>
+    <nav class="main-nav">
+      <a href="{% url 'post_task' %}" class="primary-nav">Post a Task</a>
+      <a href="{% url 'job_list' %}">Browse Task</a>
+    </nav>
+    <div class="header-actions">
+      <a href="{% url 'support' %}">Help</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'notifications' %}">Notifications</a>
+        <a href="{% url 'messages' %}">Messages</a>
+        <div class="profile-dropdown">
+          <div class="profile-icon" id="profileToggle">👤</div>
+          <div class="dropdown-menu" id="profileMenu">
+            <a href="{% url 'public_profile' user.username %}">👤 View Profile</a>
+            <a href="{% url 'manage_tasks' %}">🧾 Manage Tasks</a>
+            <a href="{% url 'dashboard' %}">📋 Dashboard</a>
+            <div class="dropdown-sub">
+              <a href="#" class="settings-toggle">⚙️ Settings ▾</a>
+              <div class="sub-options">
+                <a href="{% url 'change_email' %}">✉️ Change Email</a>
+                <a href="{% url 'change_password' %}">🔑 Change Password</a>
               </div>
             </div>
+            <div class="logout-wrapper">
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item-btn">🚪 Logout</button>
+              </form>
+            </div>
           </div>
-        {% else %}
-          <a href="{% url 'login' %}" class="login-link">Login</a>
-        {% endif %}
-      </div>
+        </div>
+      {% else %}
+        <a href="{% url 'login' %}" class="login-link">Login</a>
+      {% endif %}
     </div>
-  </header>
-
+  </div>
+</header>
   <main>
     {% block content %}{% endblock %}
   </main>
@@ -60,48 +59,35 @@
     <p>© {{ year }} GroundTasker — CSCI334 Group 6 Project, University of Wollongong</p>
     <p>Designed & developed as part of Software Design coursework, Autumn 2025.</p>
   </footer>
-
-  <script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
     const profileToggle = document.getElementById('profileToggle');
     const profileMenu = document.getElementById('profileMenu');
     const settingsToggle = document.querySelector('.settings-toggle');
     const subOptions = document.querySelector('.sub-options');
 
+    // Profile dropdown toggle
     profileToggle?.addEventListener('click', () => {
       const isVisible = profileMenu.classList.contains('visible');
-      if (isVisible) {
-        profileMenu.classList.remove('visible');
-        profileMenu.style.opacity = '0';
-        profileMenu.style.transform = 'translateY(-10px)';
-        profileMenu.style.pointerEvents = 'none';
-        profileMenu.style.visibility = 'hidden';
-      } else {
-        profileMenu.classList.add('visible');
-        profileMenu.style.opacity = '1';
-        profileMenu.style.transform = 'translateY(0)';
-        profileMenu.style.pointerEvents = 'auto';
-        profileMenu.style.visibility = 'visible';
-      }
+      profileMenu.classList.toggle('visible');
+      profileMenu.style.opacity = isVisible ? '0' : '1';
+      profileMenu.style.transform = isVisible ? 'translateY(-10px)' : 'translateY(0)';
+      profileMenu.style.pointerEvents = isVisible ? 'none' : 'auto';
+      profileMenu.style.visibility = isVisible ? 'hidden' : 'visible';
     });
 
+    // Settings dropdown toggle
     settingsToggle?.addEventListener('click', (e) => {
       e.preventDefault();
       const isShown = subOptions.classList.contains('visible');
-      if (isShown) {
-        subOptions.classList.remove('visible');
-        subOptions.style.opacity = '0';
-        subOptions.style.transform = 'translateY(-4px)';
-        subOptions.style.pointerEvents = 'none';
-        subOptions.style.visibility = 'hidden';
-      } else {
-        subOptions.classList.add('visible');
-        subOptions.style.opacity = '1';
-        subOptions.style.transform = 'translateY(0)';
-        subOptions.style.pointerEvents = 'auto';
-        subOptions.style.visibility = 'visible';
-      }
+      subOptions.classList.toggle('visible');
+      subOptions.style.opacity = isShown ? '0' : '1';
+      subOptions.style.transform = isShown ? 'translateY(-4px)' : 'translateY(0)';
+      subOptions.style.pointerEvents = isShown ? 'none' : 'auto';
+      subOptions.style.visibility = isShown ? 'hidden' : 'visible';
     });
 
+    // Hide dropdowns when clicking outside
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.profile-dropdown')) {
         profileMenu?.classList.remove('visible');
@@ -118,10 +104,12 @@
       }
     });
 
+    // Page fade-in
     window.requestAnimationFrame(() => {
       document.body.classList.add('fade-in');
     });
 
+    // Smooth page transition
     document.querySelectorAll('a[href]:not([href^="#"]):not([target="_blank"])').forEach(link => {
       link.addEventListener('click', function (e) {
         const href = this.getAttribute('href');
@@ -135,10 +123,10 @@
           }, 200);
         }
       });
-    });   
-  </script>
-  
-  <script>
+    });
+  });
+
+  // Ensure fade-in after browser back/forward
   window.addEventListener("pageshow", function (event) {
     if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
       document.body.classList.add("fade-in");

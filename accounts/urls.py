@@ -12,6 +12,7 @@ from .views import (
     DashboardView,
     LogoutConfirmView,
     auspost_proxy,
+    SafeLogoutView
 )
 
 urlpatterns = [
@@ -27,4 +28,6 @@ urlpatterns = [
     path('settings/change-email/', ChangeEmailView.as_view(), name='change_email'),
     path('settings/change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('logout/', SafeLogoutView.as_view(next_page='logout_confirm'), name='logout'),
 ]
+
