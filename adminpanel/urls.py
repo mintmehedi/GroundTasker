@@ -1,10 +1,16 @@
 from django.urls import path
-from .views import admin_dashboard, admin_tickets_list, admin_ticket_detail, admin_reports, download_attachment
+from .views import (
+    AdminDashboardView,
+    AdminTicketsListView,
+    AdminTicketDetailView,
+    AdminReportsView,
+    download_attachment  # still function-based
+)
 
 urlpatterns = [
-    path('', admin_dashboard, name='admin_dashboard'),
-    path('tickets/', admin_tickets_list, name='admin_tickets'),
-    path('tickets/<int:ticket_id>/', admin_ticket_detail, name='admin_ticket_detail'),
-    path('reports/', admin_reports, name='admin_reports'),
+    path('', AdminDashboardView.as_view(), name='admin_dashboard'),
+    path('tickets/', AdminTicketsListView.as_view(), name='admin_tickets'),
+    path('tickets/<int:ticket_id>/', AdminTicketDetailView.as_view(), name='admin_ticket_detail'),
+    path('reports/', AdminReportsView.as_view(), name='admin_reports'),
     path('ticket/<int:ticket_id>/download/', download_attachment, name='download_attachment'),
 ]

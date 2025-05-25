@@ -1,10 +1,10 @@
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.models import User
-from django.views.generic import TemplateView, CreateView
-from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import login_required
+from django.views.generic import TemplateView, CreateView, View
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -51,43 +51,44 @@ def auspost_proxy(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-
 # -------------------- Profile Setup -------------------- #
 
-@login_required
-def profile_setup(request):
-    if request.method == 'POST':
+class ProfileSetupView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = ProfileForm()
+        return render(request, 'profile_setup.html', {'form': form})
+
+    def post(self, request):
         form = ProfileForm(request.POST)
         if form.is_valid():
             profile = form.save(commit=False)
             profile.user = request.user
             profile.save()
             return redirect('home')
-    else:
-        form = ProfileForm()
-    return render(request, 'profile_setup.html', {'form': form})
-
+        return render(request, 'profile_setup.html', {'form': form})
 
 # -------------------- Edit Profile -------------------- #
 
-@login_required
-def edit_profile(request):
-    profile, created = Profile.objects.get_or_create(user=request.user)
+class EditProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        certification_options = [
+            'Police Check', 'Trade License', 'Working With Children',
+            'First Aid', 'Insurance', 'Other'
+        ]
+        return render(request, 'edit_profile.html', {
+            'user': request.user,
+            'profile': profile,
+            'certification_options': certification_options,
+        })
 
-    # Define cert options (for checkbox rendering in template)
-    certification_options = [
-        'Police Check', 'Trade License', 'Working With Children',
-        'First Aid', 'Insurance', 'Other'
-    ]
-
-    if request.method == 'POST':
-        # 🔹 Update User model fields
+    def post(self, request):
+        profile, _ = Profile.objects.get_or_create(user=request.user)
         user = request.user
         user.username = request.POST.get('username', user.username)
         user.email = request.POST.get('email', user.email)
         user.save()
 
-        # 🔹 Update Profile model fields
         profile.bio = request.POST.get('bio')
 
         raw_skills = request.POST.get('skills')
@@ -109,67 +110,51 @@ def edit_profile(request):
         profile.save()
         return redirect('public_profile', username=user.username)
 
-    return render(request, 'edit_profile.html', {
-        'user': request.user,
-        'profile': profile,
-        'certification_options': certification_options,
-    })
-
-
-
 # -------------------- Public Profile -------------------- #
 
-def public_profile_view(request, username):
-    user = get_object_or_404(User, username=username)
-    profile, created = Profile.objects.get_or_create(user=user)
+class PublicProfileView(View):
+    def get(self, request, username):
+        user = get_object_or_404(User, username=username)
+        profile, _ = Profile.objects.get_or_create(user=user)
+        skills = [s.strip() for s in profile.skills.split(',')] if profile.skills else []
+        cert_list = [c.strip() for c in profile.certifications.split(',')] if profile.certifications else []
+        posted_tasks = Task.objects.filter(posted_by=user)
 
-    skills = [s.strip() for s in profile.skills.split(',')] if profile.skills else []
-    cert_list = [c.strip() for c in profile.certifications.split(',')] if hasattr(profile, 'certifications') and profile.certifications else []
-    posted_tasks = Task.objects.filter(posted_by=user)
-
-    return render(request, 'public_profile.html', {
-        'user_profile': user,
-        'profile': profile,
-        'skills': skills,
-        'cert_list': cert_list,
-        'posted_tasks': posted_tasks
-    })
-
+        return render(request, 'public_profile.html', {
+            'user_profile': user,
+            'profile': profile,
+            'skills': skills,
+            'cert_list': cert_list,
+            'posted_tasks': posted_tasks
+        })
 
 # -------------------- Change Email & Password -------------------- #
 
-@login_required
-def change_email(request):
-    return render(request, 'change_email.html')
+class ChangeEmailView(LoginRequiredMixin, TemplateView):
+    template_name = 'change_email.html'
 
-@login_required
-def change_password(request):
-    return render(request, 'change_password.html')
-
+class ChangePasswordView(LoginRequiredMixin, TemplateView):
+    template_name = 'change_password.html'
 
 # -------------------- Dashboard -------------------- #
 
-@login_required
-def dashboard(request):
-    stats = {
-        'completed_jobs': 25,
-        'avg_rating': 4.8,
-        'total_feedback': 35,
-        'total_earnings': 24450.00,
-    }
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'dashboard.html'
 
-    completed_jobs = [
-        {'title': 'Cleaning Kitchen', 'date': 'May 10, 2025', 'client': 'Jane Smith', 'amount': '$120.00', 'rating': 4.9},
-        {'title': 'Weeding my garden', 'date': 'May 15, 2025', 'client': 'Mark Liu', 'amount': '$250.00', 'rating': 4.8},
-    ]
-
-    reviews = [
-        {'client': 'Mark Liu', 'rating': 4.8, 'comment': 'I’m very satisfied with the work......'},
-        {'client': 'Jane Smith', 'rating': 4.9, 'comment': 'I’m very satisfied with the work......'},
-    ]
-
-    return render(request, 'dashboard.html', {
-        'stats': stats,
-        'completed_jobs': completed_jobs,
-        'reviews': reviews,
-    })
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stats'] = {
+            'completed_jobs': 25,
+            'avg_rating': 4.8,
+            'total_feedback': 35,
+            'total_earnings': 24450.00,
+        }
+        context['completed_jobs'] = [
+            {'title': 'Cleaning Kitchen', 'date': 'May 10, 2025', 'client': 'Jane Smith', 'amount': '$120.00', 'rating': 4.9},
+            {'title': 'Weeding my garden', 'date': 'May 15, 2025', 'client': 'Mark Liu', 'amount': '$250.00', 'rating': 4.8},
+        ]
+        context['reviews'] = [
+            {'client': 'Mark Liu', 'rating': 4.8, 'comment': 'I’m very satisfied with the work......'},
+            {'client': 'Jane Smith', 'rating': 4.9, 'comment': 'I’m very satisfied with the work......'},
+        ]
+        return context

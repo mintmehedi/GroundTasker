@@ -135,8 +135,16 @@
           }, 200);
         }
       });
-    });
+    });   
   </script>
+  
+  <script>
+  window.addEventListener("pageshow", function (event) {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+      document.body.classList.add("fade-in");
+    }
+  });
+</script>
 
   {% block extra_js %}{% endblock %}
 </body>
