@@ -234,3 +234,18 @@
 .enhanced-filter button:hover {
   background-color: #d8a91d;
 }
+
+  .ribbon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #f44336;
+    color: white;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-bottom-left-radius: 4px;
+    z-index: 10;
+  }
+  .job-card {
+    position: relative;
+  }

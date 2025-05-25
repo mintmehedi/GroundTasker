@@ -234,3 +234,16 @@
   padding: 4px 8px;
   border-radius: 6px;
 }
+
+.offer-toggle {
+  cursor: pointer;
+  font-weight: 600;
+  color: #2563eb;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  transition: color 0.3s ease;
+}
+
+.offer-toggle:hover {
+  color: #1d4ed8;
+}

@@ -63,14 +63,28 @@
 
   <script>
     new Tagify(document.querySelector('#skills'), {
-      whitelist: ['Web Development', 'Graphic Design', 'Plumbing', 'Electrical', 'Cleaning', 'Gardening', 'Tutoring', 'Photography', 'Car Repair', 'Moving Help'],
+      whitelist: [  
+        'Plumbing', 'Electrical', 'Carpentry', 'Painting', 'Gardening', 'Cleaning',
+        'Moving Help', 'Rubbish Removal', 'Furniture Assembly', 'Pest Control',
+        'Roof Repair', 'Tiling', 'Window Cleaning', 'Pressure Washing',
+        'Dog Walking', 'Pet Sitting', 'Tutoring', 'Child Minding', 'Elderly Care',
+        'Web Development', 'Graphic Design', 'Video Editing', 'Copywriting',
+        'Social Media Marketing', 'Bookkeeping', 'Tax Preparation', 'Photography',
+        'Driving & Delivery', 'Event Setup', 'DJ Services', 'Makeup Artist',
+        'Fitness Coaching', 'Resume Writing', 'Data Entry', 'Customer Support'
+      ],
       dropdown: { enabled: 1, fuzzySearch: true }
     });
 
     new Tagify(document.querySelector('#certifications'), {
       whitelist: [
-        'Police Check', 'Trade License', 'Working With Children', 'First Aid', 'Insurance', 'Other',
-        'CPR', 'NDIS Approved', 'Mental Health Training'
+        'Police Check', 'Working With Children Check (WWCC)', 'White Card',
+        'First Aid Certificate', 'CPR Certification', 'NDIS Worker Screening Check',
+        'Trade License', 'Security License', 'Responsible Service of Alcohol (RSA)',
+        'Food Safety Supervisor', 'Working at Heights', 'Asbestos Awareness',
+        'Forklift License', 'Manual Handling Training', 'COVID-19 Vaccination Proof',
+        'Mental Health First Aid', 'Blue Card (QLD)', 'Red Card (VIC)',
+        'Construction Induction Card', 'Australian Driver’s License'
       ],
       dropdown: {
         enabled: 1,
@@ -141,13 +155,13 @@
               li.onclick = () => {
                 input.value = `${loc.location}, ${loc.state} ${loc.postcode}`;
                 suggestionBox.innerHTML = '';
-                suggestionBox.style.display = 'none';
+                suggestionBox.style.display = ' ';
               };
               suggestionBox.appendChild(li);
             });
           });
       } else {
-        suggestionBox.style.display = 'none';
+        suggestionBox.style.display = ' ';
       }
     });
 

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load dict_extras %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/manage_tasks.css' %}">
@@ -15,7 +16,7 @@
     <a href="#" class="tab" data-tab="completed">🏁 Completed Tasks</a>
   </div>
 
-  <!-- Watchlist -->
+  <!-- Watchlist Tab -->
   <div class="tab-panel" id="tab-watchlist" style="display: none;">
     {% if bookmarked_tasks %}
       {% for task in bookmarked_tasks %}
@@ -33,7 +34,7 @@
     {% endif %}
   </div>
 
-  <!-- Posted -->
+  <!-- Posted Tab -->
   <div class="tab-panel" id="tab-posted">
     {% if posted_tasks %}
       {% for task in posted_tasks %}
@@ -43,7 +44,6 @@
             <span class="task-budget">${{ task.budget }}</span>
           </div>
           <p class="task-meta">📍 {{ task.location }}<br>📅 {{ task.due_date }} ⏰ {{ task.get_due_type_display }}</p>
-
           <div class="card-actions">
             <a href="{% url 'job_detail' task.id %}" class="btn-outline">View Details</a>
             <a href="{% url 'edit_task' task.id %}" class="btn-outline">Edit</a>
@@ -52,45 +52,42 @@
               <button type="submit" class="btn-reject">Delete</button>
             </form>
           </div>
-
-        {% if task.offers.exists %}
-          <div class="offer-section">
-            <h5>Offers:</h5>
-            {% for offer in task.offers.all %}
-              {% if offer.status != "rejected" %}
-                <div class="offer-card">
-                  <p><strong>{{ offer.offered_by.username }}</strong> — ${{ offer.amount }}</p>
-                  {% if offer.message %}
-                    <p class="offer-msg">"{{ offer.message }}"</p>
-                  {% endif %}
-                  <p>Status:
-                    <span class="badge badge-{{ offer.status }}">{{ offer.status|capfirst }}</span>
-                  </p>
-
-                  {% if offer.status == "pending" %}
-                    <div class="offer-actions">
-                      <form method="post" action="{% url 'accept_offer' offer.id %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-accept">Accept</button>
-                      </form>
-                      <form method="post" action="{% url 'reject_offer' offer.id %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-reject">Reject</button>
-                      </form>
-                    </div>
-                  {% else %}
-                    <div class="offer-actions">
-                      <button class="btn-accept" disabled>Accepted</button>
-                    </div>
-                  {% endif %}
+          {% with accepted_offers|get_item:task.id as accepted_offer %}
+            {% if accepted_offer %}
+              <div class="engaged-summary">
+                <p>📌 This task has been accepted by <strong>{{ accepted_offer.offered_by.username }}</strong> for ${{ accepted_offer.amount }}.</p>
+                <p>Status: <span class="badge badge-accepted">Engaged</span></p>
+              </div>
+            {% else %}
+              <div class="offer-section">
+                <h5 class="offer-toggle" onclick="toggleOffers({{ task.id }})">
+                  <strong> Incoming Offers ⬇️ </strong>
+                </h5>
+                <div class="offer-dropdown" id="offers-{{ task.id }}" style="display: none;">
+                  {% for offer in task.offers.all %}
+                    {% if offer.status == "pending" %}
+                      <div class="offer-card">
+                        <p><strong>{{ offer.offered_by.username }}</strong> — ${{ offer.amount }}</p>
+                        {% if offer.message %}
+                          <p class="offer-msg">"{{ offer.message }}"</p>
+                        {% endif %}
+                        <div class="offer-actions">
+                          <form method="post" action="{% url 'accept_offer' offer.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-accept">Accept</button>
+                          </form>
+                          <form method="post" action="{% url 'reject_offer' offer.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-reject">Reject</button>
+                          </form>
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
                 </div>
-              {% endif %}
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="no-offers">No offers yet for this task.</p>
-        {% endif %}
-
+              </div>
+            {% endif %}
+          {% endwith %}
         </div>
       {% endfor %}
     {% else %}
@@ -98,7 +95,7 @@
     {% endif %}
   </div>
 
-  <!-- Applied -->
+  <!-- Applied Tab -->
   <div class="tab-panel" id="tab-applied" style="display: none;">
     {% if applied_offers %}
       {% for offer in applied_offers %}
@@ -121,7 +118,7 @@
     {% endif %}
   </div>
 
-  <!-- Engaged -->
+  <!-- Engaged Tab -->
   <div class="tab-panel" id="tab-engaged" style="display: none;">
     {% if engaged_offers %}
       {% for offer in engaged_offers %}
@@ -131,10 +128,14 @@
           <p>Engaged with: <strong>{{ offer.task.posted_by.username }}</strong></p>
           <p class="offer-msg">"{{ offer.message }}"</p>
           <div class="card-actions row-flex">
-            <form method="post" action="{% url 'complete_offer' offer.id %}">
-              {% csrf_token %}
-              <button type="submit" class="btn-accept">Mark Complete</button>
-            </form>
+            {% if offer.status != 'completed' %}
+              <form method="post" action="{% url 'complete_offer' offer.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-accept">Mark Complete</button>
+              </form>
+            {% else %}
+              <p class="text-success"><strong>✅ Task completed</strong></p>
+            {% endif %}
             <a href="{% url 'messages' %}?task_id={{ offer.task.id }}" class="btn btn-sm btn-outline-primary">Message</a>
           </div>
           <p class="completion-msg" id="completed-{{ offer.id }}" style="display: none; margin-top: 10px; color: green; font-weight: bold;">
@@ -147,7 +148,7 @@
     {% endif %}
   </div>
 
-  <!-- Completed -->
+  <!-- Completed Tab -->
   <div class="tab-panel" id="tab-completed" style="display: none;">
     {% if completed_tasks %}
       {% for item in completed_tasks %}
@@ -159,8 +160,6 @@
             <a href="{% url 'job_detail' item.task.id %}" class="btn-outline">View Details</a>
             <button class="btn-accept" onclick="toggleReviewForm('{{ item.task.id }}')">Leave Review</button>
           </div>
-
-          <!-- Review Form -->
           <div class="review-form" id="review-form-{{ item.task.id }}" style="display: none; margin-top: 16px;">
             <form method="post" action="#">
               {% csrf_token %}
@@ -171,10 +170,8 @@
                 {% endfor %}
               </div>
               <input type="hidden" name="rating" id="rating-input-{{ item.task.id }}">
-
               <label for="comment-{{ item.task.id }}">Feedback:</label>
               <textarea id="comment-{{ item.task.id }}" name="comment" rows="3" placeholder="Leave your comment..."></textarea>
-
               <button class="btn-accept" type="submit">Submit Review</button>
             </form>
           </div>
@@ -255,6 +252,16 @@
     });
   });
 });
+
+function toggleOffers(taskId) {
+  const dropdown = document.getElementById(`offers-${taskId}`);
+  if (dropdown.style.display === 'none') {
+    dropdown.style.display = 'block';
+  } else {
+    dropdown.style.display = 'none';
+  }
+}
+
 
 </script>
 {% endblock %}

@@ -30,6 +30,12 @@
        data-category="{{ task.category|default:''|lower }}"
        data-budget="{{ task.budget }}">
 
+      {% with task.offers.all|dictsortreversed:"created_at"|first as recent_offer %}
+        {% if recent_offer.status == 'accepted' %}
+          <div class="ribbon">Engaged</div>
+        {% endif %}
+      {% endwith %}
+
       <div class="job-card-header">
         <h3>{{ task.title }}</h3>
         <span class="budget-badge">${{ task.budget }}</span>
