@@ -302,7 +302,7 @@ class CreateReview(LoginRequiredMixin, View):
         feedback = request.POST.get('comment')
         task = get_object_or_404(Task, id=task_id)
         reviewee = task.posted_by
-        revieweeProfile = get_object_or_404(Profile, user=task_id)
+        revieweeProfile = get_object_or_404(Profile, user=task.posted_by)
 
         review = Review.objects.create(reviewer=request.user,reviewee=task.posted_by,task=task,rating=rating,feedback=feedback)
 
