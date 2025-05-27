@@ -79,7 +79,10 @@
     </div>
   </div>
 {% else %}
-  <p>You must have premium to view your statistics</p>
-  <a class="text-primary" style="cursor:pointer; text-decoration: underline;" href="{% url 'subscribe' %}">Upgrade Account</a>
+  <div class="premium-required-box">
+    <h2 class="premium-heading">🔒 Premium Required</h2>
+    <p class="premium-message">You must have premium to view your statistics</p>
+    <a class="premium-upgrade-btn" href="{% url 'subscribe' %}">Upgrade Account</a>
+  </div>
 {% endif %}
 {% endblock %}
