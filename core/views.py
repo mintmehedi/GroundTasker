@@ -23,7 +23,7 @@ class MessagesView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        thread_id = self.kwargs.get("thread_id")  # May be None
+        thread_id = self.kwargs.get("thread_id")  
 
         # Threads where user is poster or accepted offerer
         posted_tasks = Task.objects.filter(posted_by=user)

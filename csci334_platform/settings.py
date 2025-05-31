@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+import os
+import dj_database_url
 
 from pathlib import Path
 
@@ -23,12 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-f!s9v6r!maijr2f7!^p&za-nf5ec@0=z($=jdi2i84lkvla-!@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     'effd-2403-4800-259c-2601-514a-d8f-d3c7-366b.ngrok-free.app',
+    '.onrender.com'
 ]
 
 
@@ -82,10 +85,10 @@ WSGI_APPLICATION = 'csci334_platform.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        conn_max_age=600
+    )
 }
 
 
@@ -144,6 +147,7 @@ LOGIN_URL = '/login/'
 
 CSRF_TRUSTED_ORIGINS = [
     'https://effd-2403-4800-259c-2601-514a-d8f-d3c7-366b.ngrok-free.app'
+    'https://your-app-name.onrender.com',  # Update this after deployment
 ]
 
 MEDIA_URL = '/media/'
