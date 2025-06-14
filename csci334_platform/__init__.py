@@ -16,4 +16,4 @@ try:
     else:
         print("Superuser already exists.")
 except OperationalError:
-    print("Database not ready yet.")
+    print("⚠️ Database not ready, skipping superuser creation.")
