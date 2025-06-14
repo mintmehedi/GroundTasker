@@ -4,7 +4,7 @@ from .views import (
     AdminTicketsListView,
     AdminTicketDetailView,
     AdminReportsView,
-    download_attachment,  # still function-based
+    download_attachment, 
 )
 urlpatterns = [
     path('', AdminDashboardView.as_view(), name='admin_dashboard'),

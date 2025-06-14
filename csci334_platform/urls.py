@@ -9,8 +9,8 @@ urlpatterns = [
     path('tasks/', include('tasks.urls')),    # Handles task posting, job listing, job detail, and task management
     path('core/', include('core.urls')),      # Handles message, support, notification functionality
     path('admin-dashboard/', include('adminpanel.urls')),  # Handles admin dashboard and management functionality
-      
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
