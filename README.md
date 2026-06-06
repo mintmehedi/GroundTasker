@@ -27,5 +27,5 @@ This project was developed for the **CSCI334 Software Design** subject as part o
 - **Database**: SQLite (dev) | PostgreSQL (for production on Render)
 - **Deployment**: [Render.com](https://render.com/)
 - **Fake Data Generator**: [Faker](https://faker.readthedocs.io/)
-
+- **Domain**: [Vercel](https://ground-tasker.vercel.app/)
 ---
