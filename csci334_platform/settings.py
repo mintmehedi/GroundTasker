@@ -5,16 +5,26 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-dev-secret-key')  # Use env variable in prod
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True' if not os.getenv('VERCEL') else 'False').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     '.onrender.com',
+    '.vercel.app',
 ]
 
+vercel_url = os.getenv('VERCEL_URL')
+if vercel_url:
+    ALLOWED_HOSTS.append(vercel_url)
+
+extra_hosts = os.getenv('ALLOWED_HOSTS_EXTRA', '')
+if extra_hosts:
+    ALLOWED_HOSTS.extend(host.strip() for host in extra_hosts.split(',') if host.strip())
+
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.onrender.com'
+    'https://*.onrender.com',
+    'https://*.vercel.app',
 ]
 
 # Installed apps
